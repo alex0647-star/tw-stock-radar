@@ -89,37 +89,60 @@ export default function App() {
   }, []);
 
   // 切換最愛
+  // 切換最愛 (同步寫入 localStorage，防範 Strict Mode 或閉包異步問題)
   const handleToggleFavorite = (stockId) => {
-    if (favorites.includes(stockId)) {
-      setFavorites(favorites.filter(id => id !== stockId));
-    } else {
-      setFavorites([...favorites, stockId]);
-    }
+    setFavorites(prev => {
+      const next = prev.includes(stockId)
+        ? prev.filter(id => id !== stockId)
+        : [...prev, stockId];
+      try {
+        localStorage.setItem('tw-stock-favorites', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
   };
 
-  // 新增持股
+  // 新增持股 (同步寫入 localStorage)
   const handleAddHolding = (newHolding) => {
-    const existingIdx = holdings.findIndex(h => h.stock_id === newHolding.stock_id);
-    if (existingIdx > -1) {
-      const oldH = holdings[existingIdx];
-      const newLots = oldH.lots + newHolding.lots;
-      const newBuyPrice = (oldH.lots * oldH.buy_price + newHolding.lots * newHolding.buy_price) / newLots;
-      
-      const updatedHoldings = [...holdings];
-      updatedHoldings[existingIdx] = {
-        stock_id: newHolding.stock_id,
-        buy_price: parseFloat(newBuyPrice.toFixed(1)),
-        lots: parseFloat(newLots.toFixed(2))
-      };
-      setHoldings(updatedHoldings);
-    } else {
-      setHoldings([...holdings, newHolding]);
-    }
+    setHoldings(prev => {
+      const existingIdx = prev.findIndex(h => h.stock_id === newHolding.stock_id);
+      let next;
+      if (existingIdx > -1) {
+        const oldH = prev[existingIdx];
+        const newLots = oldH.lots + newHolding.lots;
+        const newBuyPrice = (oldH.lots * oldH.buy_price + newHolding.lots * newHolding.buy_price) / newLots;
+        
+        next = [...prev];
+        next[existingIdx] = {
+          stock_id: newHolding.stock_id,
+          buy_price: parseFloat(newBuyPrice.toFixed(1)),
+          lots: parseFloat(newLots.toFixed(2))
+        };
+      } else {
+        next = [...prev, newHolding];
+      }
+      try {
+        localStorage.setItem('tw-stock-holdings', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
   };
 
-  // 移出持股
+  // 移出持股 (同步寫入 localStorage)
   const handleRemoveHolding = (stockId) => {
-    setHoldings(holdings.filter(h => h.stock_id !== stockId));
+    setHoldings(prev => {
+      const next = prev.filter(h => h.stock_id !== stockId);
+      try {
+        localStorage.setItem('tw-stock-holdings', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
   };
 
   // 篩選與比對邏輯
