@@ -10,7 +10,14 @@ export default function PortfolioMonitor({
 }) {
   const [selectedStockId, setSelectedStockId] = useState(stocks[0]?.stock_id || '');
   const [buyPrice, setBuyPrice] = useState('');
-  const [lots, setLots] = useState('');
+  
+  // 零股 / 整張交易單位切換與數量控制
+  const [unitMode, setUnitMode] = useState('lots'); // 'lots' (整張) | 'shares' (零股)
+  const [quantity, setQuantity] = useState('');
+
+  // 股票搜索輔助狀態
+  const [stockSearchQuery, setStockSearchQuery] = useState('');
+  const [showStockDropdown, setShowStockDropdown] = useState(false);
 
   // 取得自選股詳細資料
   const favoriteStocks = stocks.filter(s => favorites.includes(s.stock_id));
@@ -24,15 +31,22 @@ export default function PortfolioMonitor({
   // 提交新增持股
   const handleSubmitHolding = (e) => {
     e.preventDefault();
-    if (!selectedStockId || !buyPrice || !lots) return;
+    if (!selectedStockId || !buyPrice || !quantity) return;
     
+    // 計算最終送出的張數 (lots) (1張 = 1000股)
+    const finalLots = unitMode === 'shares'
+      ? parseFloat((parseFloat(quantity) / 1000).toFixed(3))
+      : parseFloat(parseFloat(quantity).toFixed(2));
+
     onAddHolding({
       stock_id: selectedStockId,
       buy_price: parseFloat(buyPrice),
-      lots: parseFloat(lots)
+      lots: finalLots
     });
+
     setBuyPrice('');
-    setLots('');
+    setQuantity('');
+    setStockSearchQuery('');
   };
 
   // 計算持股部位數據
@@ -188,19 +202,80 @@ export default function PortfolioMonitor({
           
           {/* 新增部位表單 */}
           <form className="holdings-form" onSubmit={handleSubmitHolding}>
-            <div className="form-group-hold">
-              <label className="form-label">選擇股票</label>
-              <select 
-                className="form-input"
-                value={selectedStockId}
-                onChange={(e) => setSelectedStockId(e.target.value)}
-              >
-                {stocks.map(s => (
-                  <option key={s.stock_id} value={s.stock_id}>
-                    {s.stock_id} - {s.stock_name} ({s.category})
-                  </option>
-                ))}
-              </select>
+            {/* 股票選擇欄位（改用高級搜索方式） */}
+            <div className="form-group-hold" style={{ position: 'relative' }}>
+              <label className="form-label">搜尋股票 (代號或名稱)</label>
+              <input 
+                type="text"
+                className="form-input text-gray-100"
+                placeholder="🔍 輸入例如 2330 或 台積電..."
+                value={stockSearchQuery}
+                onFocus={() => setShowStockDropdown(true)}
+                onBlur={() => {
+                  // 稍微延遲關閉，確保點擊清單項目事件能被先觸發
+                  setTimeout(() => setShowStockDropdown(false), 250);
+                }}
+                onChange={(e) => {
+                  setStockSearchQuery(e.target.value);
+                  setShowStockDropdown(true);
+                }}
+              />
+              
+              {showStockDropdown && (
+                <div 
+                  className="search-dropdown-container"
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    width: '100%',
+                    maxHeight: '180px',
+                    overflowY: 'auto',
+                    backgroundColor: '#1b2336',
+                    border: '1.5px solid var(--border-active)',
+                    borderRadius: '10px',
+                    zIndex: 999,
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.6)',
+                    marginTop: '4px'
+                  }}
+                >
+                  {stocks.filter(s => 
+                    s.stock_id.includes(stockSearchQuery) || 
+                    s.stock_name.includes(stockSearchQuery)
+                  ).length === 0 ? (
+                    <div className="p-3 text-xs text-gray-500 italic text-center">找不到匹配的台股標的</div>
+                  ) : (
+                    stocks.filter(s => 
+                      s.stock_id.includes(stockSearchQuery) || 
+                      s.stock_name.includes(stockSearchQuery)
+                    ).map(s => (
+                      <div
+                        key={s.stock_id}
+                        className="search-dropdown-item hover:bg-tw-bg-primary"
+                        style={{
+                          padding: '10px 12px',
+                          borderBottom: '1px solid rgba(255,255,255,0.03)',
+                          display: 'flex',
+                          cursor: 'pointer',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                        onMouseDown={() => {
+                          setSelectedStockId(s.stock_id);
+                          setStockSearchQuery(`${s.stock_id} - ${s.stock_name}`);
+                          setShowStockDropdown(false);
+                        }}
+                      >
+                        <div>
+                          <span className="font-bold text-blue-400 monospace text-xs sm:text-sm">{s.stock_id}</span>
+                          <span className="ml-2 font-bold text-gray-200 text-xs sm:text-sm">{s.stock_name}</span>
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-semibold">{s.category} • {s.sub_category}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
             
             <div className="form-group-hold">
@@ -208,25 +283,64 @@ export default function PortfolioMonitor({
               <input 
                 type="number" 
                 step="0.1"
-                className="form-input" 
+                className="form-input text-gray-100" 
                 placeholder="例如 2350"
                 value={buyPrice}
                 onChange={(e) => setBuyPrice(e.target.value)}
                 required
               />
             </div>
+
+            {/* 交易單位切換：整張 vs 零股 */}
+            <div className="form-group-hold">
+              <label className="form-label">交易單位</label>
+              <div style={{ display: 'flex', gap: '0.4rem', background: '#0a0e17', padding: '3px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUnitMode('lots');
+                    setQuantity('');
+                  }}
+                  className={`btn-tab ${unitMode === 'lots' ? 'active' : ''}`}
+                  style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.78rem', borderRadius: '6px', cursor: 'pointer', border: 'none', background: unitMode === 'lots' ? 'var(--bg-tertiary)' : 'transparent', color: unitMode === 'lots' ? 'var(--accent-blue)' : 'var(--text-secondary)' }}
+                >
+                  整張 (1,000股)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUnitMode('shares');
+                    setQuantity('');
+                  }}
+                  className={`btn-tab ${unitMode === 'shares' ? 'active' : ''}`}
+                  style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.78rem', borderRadius: '6px', cursor: 'pointer', border: 'none', background: unitMode === 'shares' ? 'var(--bg-tertiary)' : 'transparent', color: unitMode === 'shares' ? 'var(--accent-blue)' : 'var(--text-secondary)' }}
+                >
+                  零股 (1股)
+                </button>
+              </div>
+            </div>
             
             <div className="form-group-hold">
-              <label className="form-label">持股張數 (張 = 1,000股)</label>
+              <label className="form-label">
+                {unitMode === 'lots' ? '買進張數 (張)' : '買進股數 (股)'}
+              </label>
               <input 
                 type="number" 
-                step="0.01"
-                className="form-input" 
-                placeholder="例如 5"
-                value={lots}
-                onChange={(e) => setLots(e.target.value)}
+                step={unitMode === 'lots' ? '0.01' : '1'}
+                className="form-input text-gray-100" 
+                placeholder={unitMode === 'lots' ? '例如 2.5' : '例如 500'}
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
                 required
               />
+              {quantity && (
+                <div style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', marginTop: '0.25rem', fontFamily: 'monospace', fontWeight: 600 }}>
+                  {unitMode === 'lots' 
+                    ? `等同於 ${(parseFloat(quantity) * 1000).toLocaleString()} 股` 
+                    : `等同於 ${(parseFloat(quantity) / 1000).toFixed(3)} 張`
+                  }
+                </div>
+              )}
             </div>
             
             <button type="submit" className="btn-add-hold">新增持股</button>
