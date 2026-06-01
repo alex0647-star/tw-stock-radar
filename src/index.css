@@ -1379,7 +1379,7 @@ input:checked + .slider-switch:before {
 @media (max-width: 768px) {
   .sticky-tab-bar {
     position: sticky;
-    top: 86px; /* 手機版貼在 navbar (約 86px) 的正下方 */
+    top: 106px; /* 手機版貼在雙行 navbar (約 106px) 的正下方，防止被遮擋切邊 */
     z-index: 95;
     background-color: rgba(10, 14, 23, 0.95); /* 半透明科技暗色底 */
     backdrop-filter: blur(12px);

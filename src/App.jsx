@@ -21,15 +21,51 @@ export default function App() {
   // 頁籤切換：'grid' (推薦清單) | 'portfolio' (我的最愛與部位監控)
   const [activeTab, setActiveTab] = useState('grid');
   
-  // 初始最愛設定 (台積電、鴻海、中信金)
-  const [favorites, setFavorites] = useState(['2330', '2317', '2891']);
+  // 從 localStorage 讀取最愛清單，若無則使用預設值
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tw-stock-favorites');
+      return saved ? JSON.parse(saved) : ['2330', '2317', '2891'];
+    } catch (e) {
+      return ['2330', '2317', '2891'];
+    }
+  });
   
-  // 初始持股部位 (模擬一個 GB200 精兵與防禦金融股組合)
-  const [holdings, setHoldings] = useState([
-    { stock_id: '2330', buy_price: 2150.0, lots: 2.0 }, // 買入 2 張台積電
-    { stock_id: '2317', buy_price: 295.0, lots: 5.0 },  // 買入 5 張鴻海
-    { stock_id: '2891', buy_price: 38.5, lots: 10.0 }   // 買入 10 張中信金
-  ]);
+  // 從 localStorage 讀取持股部位，若無則使用預設值
+  const [holdings, setHoldings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tw-stock-holdings');
+      return saved ? JSON.parse(saved) : [
+        { stock_id: '2330', buy_price: 2150.0, lots: 2.0 },
+        { stock_id: '2317', buy_price: 295.0, lots: 5.0 },
+        { stock_id: '2891', buy_price: 38.5, lots: 10.0 }
+      ];
+    } catch (e) {
+      return [
+        { stock_id: '2330', buy_price: 2150.0, lots: 2.0 },
+        { stock_id: '2317', buy_price: 295.0, lots: 5.0 },
+        { stock_id: '2891', buy_price: 38.5, lots: 10.0 }
+      ];
+    }
+  });
+
+  // 持久化儲存最愛股
+  useEffect(() => {
+    try {
+      localStorage.setItem('tw-stock-favorites', JSON.stringify(favorites));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [favorites]);
+
+  // 持久化儲存持股部位
+  useEffect(() => {
+    try {
+      localStorage.setItem('tw-stock-holdings', JSON.stringify(holdings));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [holdings]);
 
   // 路由狀態管理
   const [route, setRoute] = useState({ path: 'list', stockId: null });
