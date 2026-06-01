@@ -84,19 +84,25 @@ body {
   }
 }
 
+/* 置頂頁首包裹器 (Sticky App Header Wrapper) */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(18, 24, 36, 0.95); /* 半透明科技暗色底 */
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+}
+
 /* 頂部導航欄 (Navbar) */
 .navbar {
-  background-color: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .nav-brand {
@@ -415,7 +421,7 @@ input:checked + .slider-switch:before {
 
 .tab-buttons {
   display: flex;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.25rem;
@@ -1365,29 +1371,24 @@ input:checked + .slider-switch:before {
    全域置頂頁籤導航欄 (Sticky Segment Tab Controls)
    ========================================================================== */
 .sticky-tab-bar {
-  position: sticky;
-  top: 65px; /* 桌機版貼在 navbar (約 65px) 的正下方 */
-  z-index: 95;
-  background-color: var(--bg-primary); /* 利用暗色主底色遮蔽滾動上來的卡片 */
-  padding: 0.75rem 0;
+  background-color: transparent;
+  padding: 0 2rem 0.75rem 2rem; /* 桌機版與 navbar padding 對齊 */
   display: flex;
   justify-content: flex-end; /* 桌機版靠右顯示 */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   transition: var(--transition);
 }
 
 @media (max-width: 768px) {
   .sticky-tab-bar {
-    position: sticky;
-    top: 116px; /* 手機版貼在雙行 navbar (約 116px) 的正下方，防止任何切邊或覆蓋 */
-    z-index: 95;
-    background-color: rgba(10, 14, 23, 0.95); /* 半透明科技暗色底 */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 0.5rem 0.25rem;
+    background-color: transparent;
+    padding: 0 1rem 0.5rem 1rem; /* 手機版與 navbar padding 對齊 */
+    margin-bottom: 0;
+  }
+  
+  /* 手機版頁首底邊發光效果 */
+  .app-header {
     border-bottom: 1.5px solid var(--border-active); /* 精緻置頂發光分割線，更有質感 */
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-    margin-bottom: 0.5rem;
   }
 }
 

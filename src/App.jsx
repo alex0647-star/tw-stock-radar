@@ -185,8 +185,43 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* 頁首 */}
-      <Navbar />
+      {/* 置頂頁首與分頁控制欄 */}
+      <header className="app-header">
+        <Navbar />
+
+        {/* 全域置頂分頁控制欄 */}
+        <div className="sticky-tab-bar">
+          <div className="tab-buttons">
+            <button
+              className={`btn-tab ${activeTab === 'grid' && route.path === 'list' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('grid');
+                window.location.hash = ''; // 清除 Hash，無縫回到列表
+              }}
+            >
+              🔍 推薦觀察清單
+            </button>
+            <button
+              className={`btn-tab ${activeTab === 'portfolio' && route.path === 'list' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('portfolio');
+                window.location.hash = ''; // 清除 Hash，無縫回到列表
+              }}
+            >
+              💼 最愛與持股監控
+            </button>
+            <button
+              className={`btn-tab ${activeTab === 'market' && route.path === 'list' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('market');
+                window.location.hash = ''; // 清除 Hash，無縫回到列表
+              }}
+            >
+              🌐 大盤與國際情勢
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* 主內容區 */}
       <main className="main-content">
@@ -225,29 +260,6 @@ export default function App() {
 
             <div className="stock-grid-container">
               {activeTab === 'grid' && <TopChipsRadar />}
-              <div className="sticky-tab-bar">
-                <div className="tab-buttons">
-                  <button
-                    className={`btn-tab ${activeTab === 'grid' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('grid')}
-                  >
-                    🔍 推薦觀察清單
-                  </button>
-                  <button
-                    className={`btn-tab ${activeTab === 'portfolio' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('portfolio')}
-                  >
-                    💼 最愛與持股監控
-                  </button>
-                  <button
-                    className={`btn-tab ${activeTab === 'market' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('market')}
-                  >
-                    🌐 大盤與國際情勢
-                  </button>
-                </div>
-              </div>
-
               <div className="grid-header">
                 {activeTab === 'grid' ? (
                   <div className="results-count">
