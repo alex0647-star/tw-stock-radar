@@ -15,6 +15,12 @@ export default function PortfolioMonitor({
   // 取得自選股詳細資料
   const favoriteStocks = stocks.filter(s => favorites.includes(s.stock_id));
 
+  // 取得持股跟最愛的聯集，用來做全面的決策提示
+  const combinedIds = Array.from(new Set([
+    ...holdings.map(h => h.stock_id),
+    ...favorites
+  ]));
+
   // 提交新增持股
   const handleSubmitHolding = (e) => {
     e.preventDefault();
@@ -383,26 +389,35 @@ export default function PortfolioMonitor({
 
         {/* 推薦重疊度與決策提示 */}
         <div className="portfolio-card">
-          <h3 className="portfolio-card-title">自持股契合決策提示</h3>
-          {holdingsDetails.length === 0 ? (
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>暫無部位數據</span>
+          <h3 className="portfolio-card-title">自選持股與最愛契合決策提示</h3>
+          {combinedIds.length === 0 ? (
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>暫無持股與自選最愛數據</span>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem', display: 'block' }}>
-                您的持股在推薦觀察名單中的時機：
+                您的持股與自選最愛在推薦觀察名單中的時機：
               </span>
               
-              {holdingsDetails.map(h => {
-                const isRecommend = stocks.find(s => s.stock_id === h.stock_id);
+              {combinedIds.map(stockId => {
+                const isRecommend = stocks.find(s => s.stock_id === stockId);
                 if (!isRecommend) return null;
                 
+                const isHolding = holdings.some(h => h.stock_id === stockId);
+                const isFav = favorites.includes(stockId);
+
                 let timingClass = 'watch';
                 if (isRecommend.timing_status.status === '等待拉回' || isRecommend.timing_status.status === '等待回檔') timingClass = 'wait';
                 if (isRecommend.timing_status.status === '可分批布局' || isRecommend.timing_status.status === '可布局') timingClass = 'buy';
 
                 return (
-                  <div className="overlap-item" key={h.stock_id}>
-                    <span className="overlap-ticker">{h.stock_id} {isRecommend.stock_name}</span>
+                  <div className="overlap-item" key={stockId}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span className="overlap-ticker">{stockId} {isRecommend.stock_name}</span>
+                      <div style={{ display: 'flex', gap: '0.2rem' }}>
+                        {isHolding && <span className="badge-holding-small" style={{ fontSize: '9px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '0.05rem 0.25rem', borderRadius: '4px', fontWeight: 'bold' }}>持股</span>}
+                        {isFav && <span className="badge-fav-small" style={{ fontSize: '9px', background: 'rgba(255, 77, 79, 0.1)', color: '#ff4d4f', border: '1px solid rgba(255, 77, 79, 0.2)', padding: '0.05rem 0.25rem', borderRadius: '4px', fontWeight: 'bold' }}>♥ 最愛</span>}
+                      </div>
+                    </div>
                     <span className={`overlap-status ${timingClass}`}>{isRecommend.timing_status.status}</span>
                   </div>
                 );
