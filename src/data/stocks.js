@@ -1,0 +1,669 @@
+// 台灣股市 2026 年 6 月最新模擬資料庫
+export const stockData = [
+  {
+    stock_id: "2330",
+    stock_name: "台積電",
+    category: "半導體",
+    sub_category: "晶圓代工",
+    current_price: 2415.0,
+    change: 65.0,
+    change_percent: 2.77,
+    volume: 38450,
+    dividend_yield: 1.82,
+    pe_ratio: 28.5,
+    scores: {
+      total: 90,
+      momentum: 98,
+      valuation: 45,
+      dividend: 40,
+      risk: 70, // 較高風險 (數值低代表防禦力低，此處採 1-100 評分，越低代表波動/風險越大)
+      trend: 99
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["過熱不追", "強勢續抱", "高波動"]
+    },
+    strategy: {
+      observe_range: "2280 ~ 2320",
+      entry_method: "股價拉回至 10 日線附近分批佈局",
+      exit_method: "波段高點 2415 附近先獲利入袋 1/3",
+      stop_loss: "有效跌破 20 日均線（月線）且法人籌碼轉賣"
+    },
+    reason: "全球 AI 晶片需求呈爆發式成長，CoWoS 先進封裝產能極度供不應求。COMPUTEX 2026 展前外資大量回補，推升股價創 2,415 元新高。技術面呈強烈多頭排列，唯短期乖離率過高，不建議在此位階直接追價。"
+  },
+  {
+    stock_id: "2317",
+    stock_name: "鴻海",
+    category: "電子組裝",
+    sub_category: "AI伺服器",
+    current_price: 320.0,
+    change: 8.5,
+    change_percent: 2.73,
+    volume: 85200,
+    dividend_yield: 3.44,
+    pe_ratio: 18.2,
+    scores: {
+      total: 89,
+      momentum: 94,
+      valuation: 75,
+      dividend: 68,
+      risk: 80,
+      trend: 96
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "強勢續抱", "雙重題材"]
+    },
+    strategy: {
+      observe_range: "298 ~ 308",
+      entry_method: "回測月線或 300 元整數關卡支撐分批接",
+      exit_method: "波段目標 350~360 元分批調節",
+      stop_loss: "收盤跌破 290 元且連續三日未收復"
+    },
+    reason: "同時具備 AI 伺服器龍頭（GB200 關鍵組裝商）與蘋果 WWDC 概念股雙重利多。相較於其他 AI 概念股，目前本益比仍屬合理，5 月營收預期創同期新高，內外資籌碼持續流入，具備補漲與防禦雙重優勢。"
+  },
+  {
+    stock_id: "2454",
+    stock_name: "聯發科",
+    category: "半導體",
+    sub_category: "IC設計",
+    current_price: 2150.0,
+    change: 45.0,
+    change_percent: 2.14,
+    volume: 5120,
+    dividend_yield: 3.95,
+    pe_ratio: 24.8,
+    scores: {
+      total: 86,
+      momentum: 90,
+      valuation: 55,
+      dividend: 70,
+      risk: 75,
+      trend: 92
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["等待回檔", "EdgeAI", "高配息"]
+    },
+    strategy: {
+      observe_range: "1980 ~ 2030",
+      entry_method: "回測前次整理區間上軌或 2000 元支撐分批低接",
+      exit_method: "站上 2200 元以上可適度分批停利",
+      stop_loss: "收盤價跌破季線且法說會展望下修"
+    },
+    reason: "受惠 AI 手機與 AI PC 滲透率加速上升，天璣 9400 系列及天璣 8300 系列出貨暢旺，且與 NVIDIA 合作之車用 SoC 與 ARM 架構筆電晶片開始貢獻營收。股價突破前高，短線技術面超買，建議拉回再布局。"
+  },
+  {
+    stock_id: "2382",
+    stock_name: "廣達",
+    category: "電子組裝",
+    sub_category: "AI伺服器",
+    current_price: 480.0,
+    change: 14.5,
+    change_percent: 3.11,
+    volume: 34100,
+    dividend_yield: 2.92,
+    pe_ratio: 22.1,
+    scores: {
+      total: 85,
+      momentum: 91,
+      valuation: 58,
+      dividend: 55,
+      risk: 78,
+      trend: 95
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["過熱不追", "強勢續抱"]
+    },
+    strategy: {
+      observe_range: "435 ~ 450",
+      entry_method: "回測 20 日月線附近防守點分批買進",
+      exit_method: "挑戰 500 元大關前分批了結",
+      stop_loss: "跌破 420 元整理平台支撐"
+    },
+    reason: "AI 伺服器整機出貨動能維持高檔，受惠美系大型雲端服務商 (CSP) 持續擴大資本支出。公司訂單能見度已達 2026 年底。近期受 COMPUTEX 電腦展帶動股價再度噴發，操作上宜等量縮回測均線後再行切入。"
+  },
+  {
+    stock_id: "3017",
+    stock_name: "奇鋐",
+    category: "電子零組件",
+    sub_category: "散熱模組",
+    current_price: 1250.0,
+    change: 55.0,
+    change_percent: 4.60,
+    volume: 12400,
+    dividend_yield: 1.60,
+    pe_ratio: 42.5,
+    scores: {
+      total: 84,
+      momentum: 96,
+      valuation: 30,
+      dividend: 35,
+      risk: 60,
+      trend: 98
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["過熱不追", "高波動", "水冷先鋒"]
+    },
+    strategy: {
+      observe_range: "1120 ~ 1160",
+      entry_method: "回測月線或季線支撐，且融資餘額退潮時進場",
+      exit_method: "挑戰 1300 元以上逢高分批停利",
+      stop_loss: "收盤跌破季線 (60MA) 且投信連續大賣"
+    },
+    reason: "NVIDIA GB200 架構中，水冷散熱模組 (Liquid Cooling) 滲透率暴增，奇鋐作為全球唯二合格供應商，出貨量暴增。雖然營收成長明確，但目前本益比已突破 40 倍，評價偏高，波動極大，嚴禁高檔追價。"
+  },
+  {
+    stock_id: "3324",
+    stock_name: "雙鴻",
+    category: "電子零組件",
+    sub_category: "散熱模組",
+    current_price: 1180.0,
+    change: 48.0,
+    change_percent: 4.24,
+    volume: 9800,
+    dividend_yield: 1.86,
+    pe_ratio: 39.8,
+    scores: {
+      total: 83,
+      momentum: 93,
+      valuation: 35,
+      dividend: 38,
+      risk: 62,
+      trend: 97
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["等候回檔", "高波動", "水冷概念"]
+    },
+    strategy: {
+      observe_range: "1060 ~ 1100",
+      entry_method: "待股價回測千元整數大關或 10 日線附近分批接",
+      exit_method: "前高 1220 元附近逢高獲利減碼",
+      stop_loss: "跌破月線三天不站回或日 K 出現爆量黑 K"
+    },
+    reason: "水冷散熱技術（水冷板、CDU、歧管）產能已於第二季全面開出，營收佔比翻倍。受惠於伺服器高瓦數熱功耗處理需求，長線動能無虞。技術面近期正乖離大，宜等回檔量縮再進場。"
+  },
+  {
+    stock_id: "2308",
+    stock_name: "台達電",
+    category: "電子零組件",
+    sub_category: "電源供應器",
+    current_price: 540.0,
+    change: 12.0,
+    change_percent: 2.27,
+    volume: 18500,
+    dividend_yield: 2.59,
+    pe_ratio: 26.5,
+    scores: {
+      total: 87,
+      momentum: 88,
+      valuation: 62,
+      dividend: 58,
+      risk: 85,
+      trend: 94
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "低波動", "綠能儲能"]
+    },
+    strategy: {
+      observe_range: "510 ~ 525",
+      entry_method: "拉回整理區間中軸或月線附近分批承接",
+      exit_method: "波段挑戰 600 元整數大關逐步停利",
+      stop_loss: "跌破 495 元季線強支撐"
+    },
+    reason: "AI 伺服器除了算力，電力供應更是關鍵。台達電在 5kW 以上高階伺服器電源市佔率超高，且冷卻系統與電網級儲能方案成長前景樂觀。股價走勢較為溫和、穩健，適合風險承受度中等的投資人分批布局。"
+  },
+  {
+    stock_id: "8210",
+    stock_name: "勤誠",
+    category: "電子零組件",
+    sub_category: "伺服器機殼",
+    current_price: 620.0,
+    change: 15.0,
+    change_percent: 2.48,
+    volume: 6800,
+    dividend_yield: 2.74,
+    pe_ratio: 24.2,
+    scores: {
+      total: 86,
+      momentum: 89,
+      valuation: 65,
+      dividend: 52,
+      risk: 72,
+      trend: 93
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "機殼龍頭"]
+    },
+    strategy: {
+      observe_range: "585 ~ 600",
+      entry_method: "股價拉回至 10 日線附近且量縮時低接",
+      exit_method: "挑戰 680~700 元前波高點附近分批出場",
+      stop_loss: "收盤跌破 560 元前低整理平台"
+    },
+    reason: "高階 AI 伺服器機殼與客製化機櫃需求激增。作為 NVIDIA 核心合作夥伴，在 GB200 機櫃市佔率領先。目前估值相較於散熱模組而言較有安全邊際，營收逐月增長明確，呈多頭排列且未有過熱失控訊號。"
+  },
+  {
+    stock_id: "2059",
+    stock_name: "川湖",
+    category: "通用機械",
+    sub_category: "導軌滑軌",
+    current_price: 1850.0,
+    change: 35.0,
+    change_percent: 1.93,
+    volume: 1820,
+    dividend_yield: 2.16,
+    pe_ratio: 32.4,
+    scores: {
+      total: 84,
+      momentum: 86,
+      valuation: 48,
+      dividend: 50,
+      risk: 70,
+      trend: 92
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["等待回檔", "高價股"]
+    },
+    strategy: {
+      observe_range: "1720 ~ 1760",
+      entry_method: "股價回測月線且量縮、融資降溫時佈局",
+      exit_method: "上看 2000 元關卡附近進行獲利調節",
+      stop_loss: "收盤價跌破 1650 元支撐點"
+    },
+    reason: "高階伺服器導軌全球市佔第一。AI 伺服器重量劇增（GB200 重達數百公斤），對於導軌的承重、阻尼及專利設計要求極高，毛利率高達 60% 以上。高價股流動性較低但籌碼安定，建議逢回分批進場。"
+  },
+  {
+    stock_id: "3008",
+    stock_name: "大立光",
+    category: "光學鏡頭",
+    sub_category: "蘋果鏈",
+    current_price: 3200.0,
+    change: 95.0,
+    change_percent: 3.06,
+    volume: 1250,
+    dividend_yield: 2.81,
+    pe_ratio: 21.5,
+    scores: {
+      total: 85,
+      momentum: 87,
+      valuation: 78,
+      dividend: 62,
+      risk: 82,
+      trend: 86
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "低估值", "WWDC概念"]
+    },
+    strategy: {
+      observe_range: "3020 ~ 3100",
+      entry_method: "於 3000 元整數關卡至月線區間分批佈局",
+      exit_method: "攻克 3500 元前高附近分批獲利了結",
+      stop_loss: "跌破季線 2850 元且下半年出貨展望轉淡"
+    },
+    reason: "隨著 6 月蘋果 WWDC 召開，市場對導入 Apple Intelligence 的 iPhone 18 換機潮預期升溫。大立光作為潛望鏡式鏡頭及高階 G+P 鏡頭主供商，最能受惠規格升級。目前估值相對偏低，底部打底完成，具備高安全邊際。"
+  },
+  {
+    stock_id: "2327",
+    stock_name: "國巨",
+    category: "電子零組件",
+    sub_category: "被動元件",
+    current_price: 780.0,
+    change: 15.0,
+    change_percent: 1.96,
+    volume: 4800,
+    dividend_yield: 4.10,
+    pe_ratio: 14.5,
+    scores: {
+      total: 88,
+      momentum: 82,
+      valuation: 88,
+      dividend: 82,
+      risk: 86,
+      trend: 80
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-05-29",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "高殖利率", "價值復甦"]
+    },
+    strategy: {
+      observe_range: "740 ~ 760",
+      entry_method: "回測月線或 750 元附近支撐分批承接",
+      exit_method: "目標上看 850~880 元附近獲利出場",
+      stop_loss: "收盤價跌破半年線 710 元"
+    },
+    reason: "被動元件產業經歷長達數季的庫存去化後，第二季庫存回到健康水準。AI 伺服器與高效能運算對高壓、高頻 MLCC 需求暴增數倍，帶動高階產品稼動率回溫。具備 >4% 高殖利率，評價極具吸引力。"
+  },
+  {
+    stock_id: "2383",
+    stock_name: "台光電",
+    category: "電子零組件",
+    sub_category: "銅箔基板",
+    current_price: 520.0,
+    change: 18.0,
+    change_percent: 3.59,
+    volume: 11200,
+    dividend_yield: 2.31,
+    pe_ratio: 23.6,
+    scores: {
+      total: 86,
+      momentum: 92,
+      valuation: 60,
+      dividend: 50,
+      risk: 74,
+      trend: 95
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "等待拉回",
+      tags: ["等待回檔", "CCL龍頭"]
+    },
+    strategy: {
+      observe_range: "480 ~ 495",
+      entry_method: "回測月線或 500 元整數關卡支撐分批接",
+      exit_method: "股價創高挑戰 560~580 元時分批減碼",
+      stop_loss: "跌破 460 元季線支撐"
+    },
+    reason: "全球高階 AI 伺服器 CCL（銅箔基板）主要供應商。雖然一度面臨同業競爭，但因 GB200 生態系中對超低損耗材料規格要求極高，其龍頭地位依然穩固。股價強勢反彈，短線追價風險偏高，建議回檔布局。"
+  },
+  {
+    stock_id: "2408",
+    stock_name: "南亞科",
+    category: "半導體",
+    sub_category: "記憶體",
+    current_price: 72.0,
+    change: -0.5,
+    change_percent: -0.69,
+    volume: 15400,
+    dividend_yield: 1.39,
+    pe_ratio: 35.0,
+    scores: {
+      total: 71,
+      momentum: 62,
+      valuation: 55,
+      dividend: 30,
+      risk: 76,
+      trend: 78
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-05-29",
+      broker_date: "2026-05-28",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "僅觀察",
+      tags: ["僅觀察", "高波動", "循環底部"]
+    },
+    strategy: {
+      observe_range: "68 ~ 70",
+      entry_method: "股價落入 70 元以下打底平台時，僅建立觀察基本倉",
+      exit_method: "反彈至季線 76~78 元附近適度解套減碼",
+      stop_loss: "跌破前低 65 元"
+    },
+    reason: "DRAM 報價呈現緩步復甦，HBM 產能排擠效應雖帶動 DDR5 漲價，但南亞科主力之 DDR4 及利基型記憶體需求回升速度慢於預期。第一季營運仍處損平邊緣，短線動能偏弱，適合長線景氣循環谷底觀察者。"
+  },
+  {
+    stock_id: "2891",
+    stock_name: "中信金",
+    category: "金融保險",
+    sub_category: "銀行",
+    current_price: 41.5,
+    change: 0.5,
+    change_percent: 1.22,
+    volume: 42100,
+    dividend_yield: 5.06,
+    pe_ratio: 11.2,
+    scores: {
+      total: 87,
+      momentum: 80,
+      valuation: 85,
+      dividend: 95,
+      risk: 90,
+      trend: 82
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "高殖利率", "穩健防禦"]
+    },
+    strategy: {
+      observe_range: "39.5 ~ 40.8",
+      entry_method: "股價回測 5 日線或 40 元大關分批進場",
+      exit_method: "中長線穩健存股，若漲幅超過 15% 可適度調節",
+      stop_loss: "跌破 37.5 元且配息政策出現意外調降"
+    },
+    reason: "核心子公司中信銀獲利維持歷史高檔，受惠台美高利差及財富管理手續費暴增。今年配發高額現金股利，目前實質殖利率高達 5% 以上，極具防禦價值。在大盤位階創高時，為極佳之避險與資產配置選擇。"
+  },
+  {
+    stock_id: "2881",
+    stock_name: "富邦金",
+    category: "金融保險",
+    sub_category: "壽險金控",
+    current_price: 92.0,
+    change: 1.2,
+    change_percent: 1.32,
+    volume: 24500,
+    dividend_yield: 4.13,
+    pe_ratio: 10.8,
+    scores: {
+      total: 86,
+      momentum: 82,
+      valuation: 82,
+      dividend: 85,
+      risk: 84,
+      trend: 84
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "獲利王", "穩健存股"]
+    },
+    strategy: {
+      observe_range: "88 ~ 90.5",
+      entry_method: "逢回測月線或 90 元關卡分批布局存股",
+      exit_method: "挑戰百元大關前適度進行減碼",
+      stop_loss: "跌破 84 元或新台幣匯率出現極端劇烈波動"
+    },
+    reason: "台灣金融業 EPS 獲利王。受惠於台美股市創高，旗下富邦人壽投資收益及台股部位實現可觀未實現損益，壽險雙雄獲利動能爆發。且宣告現金股利優於預期，殖利率逾 4%，性價比高。"
+  },
+  {
+    stock_id: "2882",
+    stock_name: "國泰金",
+    category: "金融保險",
+    sub_category: "壽險金控",
+    current_price: 64.0,
+    change: 0.8,
+    change_percent: 1.27,
+    volume: 21500,
+    dividend_yield: 4.38,
+    pe_ratio: 11.5,
+    scores: {
+      total: 85,
+      momentum: 81,
+      valuation: 80,
+      dividend: 86,
+      risk: 82,
+      trend: 83
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "可分批布局",
+      tags: ["可分批布局", "穩健存股"]
+    },
+    strategy: {
+      observe_range: "61 ~ 62.8",
+      entry_method: "回測月線或整數支撐分批買進佈局",
+      exit_method: "中長線存股，波段上看 70 元大關",
+      stop_loss: "跌破半年線 57.5 元"
+    },
+    reason: "金控雙雄之一，首季獲利爆發。受惠海外高利環境及資本市場大漲，國壽淨值與獲利能力大幅提升。配發股利大方，目前殖利率表現優異，防禦力十足，適合於高檔盤勢中作為資金避風港。"
+  },
+  {
+    stock_id: "1301",
+    stock_name: "台塑",
+    category: "傳統產業",
+    sub_category: "塑膠石化",
+    current_price: 58.0,
+    change: -0.2,
+    change_percent: -0.34,
+    volume: 8200,
+    dividend_yield: 1.72,
+    pe_ratio: 45.0,
+    scores: {
+      total: 65,
+      momentum: 50,
+      valuation: 40,
+      dividend: 32,
+      risk: 88,
+      trend: 55
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-05-29",
+      broker_date: "2026-05-28",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "僅觀察",
+      tags: ["僅觀察", "低動能", "傳統石化"]
+    },
+    strategy: {
+      observe_range: "54 ~ 56",
+      entry_method: "目前趨勢尚未扭轉，不建議在此位階建立部位，僅作景氣復甦觀察",
+      exit_method: "若持有者，可逢反彈回月線/季線時適度減碼換股",
+      stop_loss: "股價跌破 52 元續創波段新低"
+    },
+    reason: "受制於中國大陸石化產能持續過剩與殺價競爭，外溢效應衝擊台灣石化製品利潤，且全球碳稅實施增加營運成本。第一季本業依然面臨虧損壓力，基本面仍待落底，建議暫不買進，保持觀察。"
+  },
+  {
+    stock_id: "2002",
+    stock_name: "中鋼",
+    category: "傳統產業",
+    sub_category: "鋼鐵冶煉",
+    current_price: 23.5,
+    change: -0.1,
+    change_percent: -0.42,
+    volume: 12500,
+    dividend_yield: 2.13,
+    pe_ratio: 38.0,
+    scores: {
+      total: 68,
+      momentum: 55,
+      valuation: 50,
+      dividend: 40,
+      risk: 86,
+      trend: 60
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-05-29",
+      broker_date: "2026-05-29",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "僅觀察",
+      tags: ["僅觀察", "景氣循環"]
+    },
+    strategy: {
+      observe_range: "21.8 ~ 22.5",
+      entry_method: "股價未站穩季線前，僅進行長線技術面追蹤，不建議重倉",
+      exit_method: "若反彈至半年線 25 元整數關卡可減碼",
+      stop_loss: "跌破 21 元波段支撐"
+    },
+    reason: "受全球房地產建設需求偏弱以及低價鋼材傾銷衝擊，鋼價反彈動能不足。中鋼雖積極佈局高值化精緻鋼材及綠能風電鋼板，但整體獲利回溫緩慢，目前評價偏高且殖利率缺乏吸引力，僅列入觀察。"
+  }
+];
