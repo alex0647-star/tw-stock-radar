@@ -139,26 +139,26 @@ export default function PortfolioMonitor({
 
                     return (
                       <tr key={stock.stock_id}>
-                        <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>{stock.stock_id}</td>
-                        <td style={{ fontWeight: 600 }}>{stock.stock_name}</td>
-                        <td style={{ fontFamily: 'monospace', fontWeight: 700, color: isUp ? 'var(--color-up)' : 'var(--color-down)' }}>
+                        <td data-label="代碼" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{stock.stock_id}</td>
+                        <td data-label="名稱" style={{ fontWeight: 600 }}>{stock.stock_name}</td>
+                        <td data-label="現價" style={{ fontFamily: 'monospace', fontWeight: 700, color: isUp ? 'var(--color-up)' : 'var(--color-down)' }}>
                           {stock.current_price}
                         </td>
-                        <td style={{ fontFamily: 'monospace', fontWeight: 700, color: isUp ? 'var(--color-up)' : 'var(--color-down)' }}>
+                        <td data-label="漲跌幅" style={{ fontFamily: 'monospace', fontWeight: 700, color: isUp ? 'var(--color-up)' : 'var(--color-down)' }}>
                           {isUp ? '+' : ''}{stock.change_percent.toFixed(2)}%
                         </td>
-                        <td>
+                        <td data-label="時機狀態">
                           <span className={`timing-badge ${badgeClass}`} style={{ transform: 'scale(0.85)', transformOrigin: 'left' }}>
                             {stock.timing_status.status}
                           </span>
                         </td>
-                        <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        <td data-label="主要優勢 / 警示" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                           {stock.scores.momentum >= 90 && "🔥 動能強勁 | "}
                           {stock.scores.valuation >= 75 && "💎 評價具安全邊際 | "}
                           {stock.timing_status.tags.includes("過熱不追") && "⚠️ 短線過熱建議等拉回"}
                           {!stock.timing_status.tags.includes("過熱不追") && "基本面穩健，適合追蹤"}
                         </td>
-                        <td>
+                        <td data-label="自選管理">
                           <button 
                             className="btn-delete-hold"
                             onClick={() => onToggleFavorite(stock.stock_id)}
@@ -251,22 +251,22 @@ export default function PortfolioMonitor({
                     const isProfit = h.profit >= 0;
                     return (
                       <tr key={h.stock_id}>
-                        <td>
+                        <td data-label="代碼 / 名稱">
                           <div style={{ fontWeight: 700 }}>{h.stock_id}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{h.stockInfo.stock_name}</div>
                         </td>
-                        <td style={{ fontSize: '0.8rem' }}>{h.stockInfo.category}</td>
-                        <td style={{ fontFamily: 'monospace' }}>{h.buy_price.toLocaleString('zh-TW', { minimumFractionDigits: 1 })}</td>
-                        <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>{h.stockInfo.current_price.toLocaleString('zh-TW', { minimumFractionDigits: 1 })}</td>
-                        <td style={{ fontFamily: 'monospace' }}>{h.lots} 張</td>
-                        <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                        <td data-label="產業" style={{ fontSize: '0.8rem' }}>{h.stockInfo.category}</td>
+                        <td data-label="買入成本" style={{ fontFamily: 'monospace' }}>{h.buy_price.toLocaleString('zh-TW', { minimumFractionDigits: 1 })}</td>
+                        <td data-label="今日現價" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{h.stockInfo.current_price.toLocaleString('zh-TW', { minimumFractionDigits: 1 })}</td>
+                        <td data-label="持有張數" style={{ fontFamily: 'monospace' }}>{h.lots} 張</td>
+                        <td data-label="部位現值" style={{ fontFamily: 'monospace', fontWeight: 700 }}>
                           {h.marketValue.toLocaleString('zh-TW', { maximumFractionDigits: 0 })} 元
                         </td>
-                        <td style={{ fontFamily: 'monospace', fontWeight: 700, color: isProfit ? 'var(--color-up)' : 'var(--color-down)' }}>
+                        <td data-label="今日損益" style={{ fontFamily: 'monospace', fontWeight: 700, color: isProfit ? 'var(--color-up)' : 'var(--color-down)' }}>
                           {isProfit ? '+' : ''}{h.profit.toLocaleString('zh-TW', { maximumFractionDigits: 0 })} 元
                           <div style={{ fontSize: '0.75rem' }}>({isProfit ? '+' : ''}{h.profitPercent.toFixed(2)}%)</div>
                         </td>
-                        <td>
+                        <td data-label="移出">
                           <button 
                             className="btn-delete-hold"
                             onClick={() => onRemoveHolding(h.stock_id)}

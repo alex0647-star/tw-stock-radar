@@ -32,6 +32,7 @@ export default function App() {
 
   // 路由狀態管理
   const [route, setRoute] = useState({ path: 'list', stockId: null });
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -136,20 +137,30 @@ export default function App() {
           /* 大盤觀察與列表視圖 */
           <>
             {activeTab === 'grid' && (
-              <SidebarFilters
-                search={search}
-                setSearch={setSearch}
-                styleFilter={styleFilter}
-                setStyleFilter={setStyleFilter}
-                minScore={minScore}
-                setMinScore={setMinScore}
-                yieldToggle={yieldToggle}
-                setYieldToggle={setYieldToggle}
-                timingToggle={timingToggle}
-                setTimingToggle={setTimingToggle}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-              />
+              <>
+                <button 
+                  className="btn-filter-mobile-toggle"
+                  onClick={() => setShowFiltersMobile(!showFiltersMobile)}
+                >
+                  {showFiltersMobile ? '✖ 關閉篩選與排序' : '🔍 展開篩選與排序'}
+                </button>
+                <div className={`sidebar-filters-wrapper ${showFiltersMobile ? 'mobile-show' : ''}`}>
+                  <SidebarFilters
+                    search={search}
+                    setSearch={setSearch}
+                    styleFilter={styleFilter}
+                    setStyleFilter={setStyleFilter}
+                    minScore={minScore}
+                    setMinScore={setMinScore}
+                    yieldToggle={yieldToggle}
+                    setYieldToggle={setYieldToggle}
+                    timingToggle={timingToggle}
+                    setTimingToggle={setTimingToggle}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                  />
+                </div>
+              </>
             )}
 
             <div className="stock-grid-container">

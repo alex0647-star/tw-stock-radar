@@ -1157,3 +1157,207 @@ input:checked + .slider-switch:before {
 .overlap-status.buy { color: var(--accent-blue); }
 .overlap-status.wait { color: var(--accent-amber); }
 .overlap-status.watch { color: var(--text-muted); }
+
+/* ========================================== */
+/* 📱 響應式手機版 RWD 美化與特殊版面設計 */
+/* ========================================== */
+
+/* 手機版篩選切換開關 */
+.btn-filter-mobile-toggle {
+  display: none;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: #fff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.btn-filter-mobile-toggle:hover {
+  filter: brightness(1.15);
+}
+
+/* 篩選抽屜包裹器 */
+.sidebar-filters-wrapper {
+  width: auto;
+  height: auto;
+}
+
+@media (max-width: 1024px) {
+  .btn-filter-mobile-toggle {
+    display: block;
+  }
+  
+  .sidebar-filters-wrapper {
+    display: none;
+    width: 100%;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.25s ease-out;
+  }
+  
+  .sidebar-filters-wrapper.mobile-show {
+    display: block;
+  }
+  
+  .sidebar-filters {
+    width: 100% !important;
+    box-shadow: var(--shadow-md);
+  }
+  
+  .portfolio-container {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 導航欄手機版橫滾優化 */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+  
+  .nav-brand {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .nav-stats {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.35rem;
+    gap: 0.65rem;
+    display: flex;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .index-widget {
+    flex-shrink: 0;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+  
+  .nav-time {
+    display: none; /* 手機上隱藏多餘日期以防太擠 */
+  }
+  
+  .main-content {
+    padding: 0.75rem;
+    gap: 1rem;
+  }
+  
+  .grid-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .tab-buttons {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .btn-tab {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.78rem;
+    text-align: center;
+  }
+}
+
+/* 📁 電腦表格在手機版（無縫轉換為高階字卡） */
+@media (max-width: 640px) {
+  /* 隱藏原生表頭 */
+  .holdings-table thead {
+    display: none;
+  }
+  
+  /* 表格列轉為獨立卡片 */
+  .holdings-table tr {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 0.5rem;
+    background: rgba(255, 255, 255, 0.015);
+    margin-bottom: 0.75rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+  }
+  
+  .holdings-table tr:hover {
+    border-color: var(--border-active);
+  }
+  
+  /* 表格單元格轉為橫排對稱欄位 */
+  .holdings-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.75rem;
+    border: none !important;
+    font-size: 0.85rem;
+  }
+  
+  /* 利用 data-label 渲染左側欄位名稱 */
+  .holdings-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+  
+  /* 移出按鈕單獨靠右對齊 */
+  .holdings-table td[data-label="自選管理"],
+  .holdings-table td[data-label="移出"] {
+    justify-content: flex-end;
+  }
+  
+  .holdings-table td[data-label="自選管理"]::before,
+  .holdings-table td[data-label="移出"]::before {
+    margin-right: auto;
+  }
+  
+  /* 合計欄位單獨客製樣式 */
+  .holdings-table tr:last-child {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  
+  .holdings-table tr:last-child td::before {
+    color: var(--accent-blue);
+  }
+  
+  /* 表單佈局自適應 */
+  .holdings-form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .form-group-hold {
+    width: 100%;
+  }
+  
+  .btn-add-hold {
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+}
+
