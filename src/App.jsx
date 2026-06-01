@@ -166,21 +166,7 @@ export default function App() {
 
             <div className="stock-grid-container">
               {activeTab === 'grid' && <TopChipsRadar />}
-              <div className="grid-header">
-                {activeTab === 'grid' ? (
-                  <div className="results-count">
-                    篩選結果：共 <span>{sortedStocks.length}</span> 檔推薦觀察股
-                  </div>
-                ) : activeTab === 'portfolio' ? (
-                  <div className="results-count">
-                    我的最愛與持股監控控制台
-                  </div>
-                ) : (
-                  <div className="results-count">
-                    加權指數與國際情勢戰略對策室
-                  </div>
-                )}
-
+              <div className="sticky-tab-bar">
                 <div className="tab-buttons">
                   <button
                     className={`btn-tab ${activeTab === 'grid' ? 'active' : ''}`}
@@ -201,6 +187,22 @@ export default function App() {
                     🌐 大盤與國際情勢
                   </button>
                 </div>
+              </div>
+
+              <div className="grid-header">
+                {activeTab === 'grid' ? (
+                  <div className="results-count">
+                    篩選結果：共 <span>{sortedStocks.length}</span> 檔推薦觀察股
+                  </div>
+                ) : activeTab === 'portfolio' ? (
+                  <div className="results-count">
+                    我的最愛與持股監控控制台
+                  </div>
+                ) : (
+                  <div className="results-count">
+                    加權指數與國際情勢戰略對策室
+                  </div>
+                )}
               </div>
 
               {activeTab === 'grid' ? (

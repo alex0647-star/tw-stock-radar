@@ -1272,15 +1272,6 @@ input:checked + .slider-switch:before {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    position: sticky;
-    top: 86px; /* 貼在手機版 sticky navbar (約 86px) 的下方 */
-    z-index: 99;
-    background-color: rgba(18, 24, 36, 0.95); /* 半透明科技暗色底 */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid var(--border-active); /* 精緻微發光邊框 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-    transition: var(--transition);
   }
   
   .btn-tab {
@@ -1367,6 +1358,36 @@ input:checked + .slider-switch:before {
   .btn-add-hold {
     width: 100%;
     margin-top: 0.25rem;
+  }
+}
+
+/* ==========================================================================
+   全域置頂頁籤導航欄 (Sticky Segment Tab Controls)
+   ========================================================================== */
+.sticky-tab-bar {
+  position: sticky;
+  top: 65px; /* 桌機版貼在 navbar (約 65px) 的正下方 */
+  z-index: 95;
+  background-color: var(--bg-primary); /* 利用暗色主底色遮蔽滾動上來的卡片 */
+  padding: 0.75rem 0;
+  display: flex;
+  justify-content: flex-end; /* 桌機版靠右顯示 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: var(--transition);
+}
+
+@media (max-width: 768px) {
+  .sticky-tab-bar {
+    position: sticky;
+    top: 86px; /* 手機版貼在 navbar (約 86px) 的正下方 */
+    z-index: 95;
+    background-color: rgba(10, 14, 23, 0.95); /* 半透明科技暗色底 */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1.5px solid var(--border-active); /* 精緻置頂發光分割線，更有質感 */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    margin-bottom: 0.5rem;
   }
 }
 
