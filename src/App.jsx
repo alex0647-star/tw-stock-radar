@@ -6,6 +6,7 @@ import PortfolioMonitor from './components/PortfolioMonitor';
 import StockDetail from './components/StockDetail';
 import MarketTrends from './components/MarketTrends';
 import { stockData } from './data/stocks';
+import TopChipsRadar from './components/TopChipsRadar';
 
 export default function App() {
   // 狀態管理
@@ -164,6 +165,7 @@ export default function App() {
             )}
 
             <div className="stock-grid-container">
+              {activeTab === 'grid' && <TopChipsRadar />}
               <div className="grid-header">
                 {activeTab === 'grid' ? (
                   <div className="results-count">
