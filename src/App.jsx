@@ -232,7 +232,7 @@ export default function App() {
                   onRemoveHolding={handleRemoveHolding}
                 />
               ) : (
-                <MarketTrends />
+                <MarketTrends favorites={favorites} stocks={stocks} />
               )}
             </div>
           </>

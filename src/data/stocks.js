@@ -720,5 +720,45 @@ export const stockData = [
     analyst_action: "避開觀望 (僅觀察)",
     core_risk: "中國房地產爛尾樓與建材需求持續冰封，導致中國內銷熱軋、冷軋鋼材大量低價傾銷外溢至東南亞與台灣市場。",
     global_linkage: "高度掛鉤中國大陸房地產景氣（螺紋鋼、鐵礦砂報價指標），以及全球基礎綠能建設對精緻鋼材的需求增速。"
+  },
+  {
+    stock_id: "3481",
+    stock_name: "群創",
+    category: "面板",
+    sub_category: "液晶面板",
+    current_price: 56.1,
+    change: 3.1,
+    change_percent: 5.84,
+    volume: 154000,
+    dividend_yield: 2.15,
+    pe_ratio: 28.2,
+    scores: {
+      total: 75,
+      momentum: 88,
+      valuation: 65,
+      dividend: 40,
+      risk: 55,
+      trend: 84
+    },
+    timestamps: {
+      price_date: "2026-06-01",
+      inst_date: "2026-06-01",
+      broker_date: "2026-06-01",
+      report_date: "2026-Q1"
+    },
+    timing_status: {
+      status: "僅觀察",
+      tags: ["爆量強勢", "事件題材", "高波動"]
+    },
+    strategy: {
+      observe_range: "52.5 ~ 54.0",
+      entry_method: "量縮回測 5 日均線支撐時小倉位快進快出",
+      exit_method: "波段高點 59 ~ 61 元阻力區全數獲利了結",
+      stop_loss: "有效跌破今日長紅棒中值 (51.5 元)"
+    },
+    reason: "今日成交量暴增強勢突圍，但買盤偏向短線事件/減資題材與情緒炒作，波動性極高。僅適合短線輕倉操作，不宜長線重壓。",
+    analyst_action: "短線輕倉 (小倉操作)",
+    core_risk: "面板產業長期供過於求格局未完全改變，且短線情緒與資金流出速度快，防範高檔爆量長黑多殺多。",
+    global_linkage: "連動全球大尺寸面板報價、減資進度，以及中國同業（京東方等）的產能擴張動能。"
   }
 ];
