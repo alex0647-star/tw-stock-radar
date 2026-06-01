@@ -1272,6 +1272,15 @@ input:checked + .slider-switch:before {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    position: sticky;
+    top: 86px; /* 貼在手機版 sticky navbar (約 86px) 的下方 */
+    z-index: 99;
+    background-color: rgba(18, 24, 36, 0.95); /* 半透明科技暗色底 */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid var(--border-active); /* 精緻微發光邊框 */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    transition: var(--transition);
   }
   
   .btn-tab {
