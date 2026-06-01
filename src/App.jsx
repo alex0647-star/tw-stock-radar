@@ -3,6 +3,8 @@ import Navbar from './components/Navbar';
 import SidebarFilters from './components/SidebarFilters';
 import StockCard from './components/StockCard';
 import PortfolioMonitor from './components/PortfolioMonitor';
+import StockDetail from './components/StockDetail';
+import MarketTrends from './components/MarketTrends';
 import { stockData } from './data/stocks';
 
 export default function App() {
@@ -28,6 +30,26 @@ export default function App() {
     { stock_id: '2891', buy_price: 38.5, lots: 10.0 }   // 買入 10 張中信金
   ]);
 
+  // 路由狀態管理
+  const [route, setRoute] = useState({ path: 'list', stockId: null });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      const stockMatch = hash.match(/^#\/stock\/(\d+)$/);
+      if (stockMatch) {
+        setRoute({ path: 'detail', stockId: stockMatch[1] });
+      } else {
+        setRoute({ path: 'list', stockId: null });
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange(); // 首次加載比對
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   // 切換最愛
   const handleToggleFavorite = (stockId) => {
     if (favorites.includes(stockId)) {
@@ -41,7 +63,6 @@ export default function App() {
   const handleAddHolding = (newHolding) => {
     const existingIdx = holdings.findIndex(h => h.stock_id === newHolding.stock_id);
     if (existingIdx > -1) {
-      // 若持股已存在，重新計算加權均價與張數
       const oldH = holdings[existingIdx];
       const newLots = oldH.lots + newHolding.lots;
       const newBuyPrice = (oldH.lots * oldH.buy_price + newHolding.lots * newHolding.buy_price) / newLots;
@@ -79,17 +100,10 @@ export default function App() {
   };
 
   const filteredStocks = stocks.filter(stock => {
-    // 搜尋比對 (代碼或名稱)
     const matchesSearch = stock.stock_id.includes(search) || 
                           stock.stock_name.includes(search);
-    
-    // 最低推薦分數
     const matchesScore = stock.scores.total >= minScore;
-    
-    // 殖利率 4% 以上
     const matchesYield = !yieldToggle || stock.dividend_yield >= 4.0;
-    
-    // 適合進場時機
     const matchesTiming = !timingToggle || 
                           stock.timing_status.status === '可分批布局' || 
                           stock.timing_status.status === '等待拉回' ||
@@ -98,13 +112,12 @@ export default function App() {
     return matchesSearch && matchesScore && matchesStyle(stock) && matchesYield && matchesTiming;
   });
 
-  // 排序邏輯
   const sortedStocks = [...filteredStocks].sort((a, b) => {
     if (sortBy === 'total') return b.scores.total - a.scores.total;
     if (sortBy === 'momentum') return b.scores.momentum - a.scores.momentum;
-    if (sortBy === 'valuation') return b.scores.valuation - a.scores.valuation; // 高安全邊際優先
-    if (sortBy === 'dividend') return b.dividend_yield - a.dividend_yield; // 殖利率優先
-    if (sortBy === 'risk') return b.scores.risk - a.scores.risk; // 防禦力最強（風險最小）優先
+    if (sortBy === 'valuation') return b.scores.valuation - a.scores.valuation;
+    if (sortBy === 'dividend') return b.dividend_yield - a.dividend_yield;
+    if (sortBy === 'risk') return b.scores.risk - a.scores.risk;
     if (sortBy === 'trend') return b.scores.trend - a.scores.trend;
     return 0;
   });
@@ -116,86 +129,101 @@ export default function App() {
 
       {/* 主內容區 */}
       <main className="main-content">
-        {/* 推薦清單模式下顯示左側篩選面板 */}
-        {activeTab === 'grid' && (
-          <SidebarFilters
-            search={search}
-            setSearch={setSearch}
-            styleFilter={styleFilter}
-            setStyleFilter={setStyleFilter}
-            minScore={minScore}
-            setMinScore={setMinScore}
-            yieldToggle={yieldToggle}
-            setYieldToggle={setYieldToggle}
-            timingToggle={timingToggle}
-            setTimingToggle={setTimingToggle}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-          />
-        )}
-
-        {/* 股票顯示網格 */}
-        <div className="stock-grid-container">
-          
-          {/* 控制頁籤頭部 */}
-          <div className="grid-header">
-            {activeTab === 'grid' ? (
-              <div className="results-count">
-                篩選結果：共 <span>{sortedStocks.length}</span> 檔推薦觀察股
-              </div>
-            ) : (
-              <div className="results-count">
-                我的最愛與持股監控控制台
-              </div>
+        {route.path === 'detail' ? (
+          /* 個股詳情 K 線圖視圖 */
+          <StockDetail stockId={route.stockId} />
+        ) : (
+          /* 大盤觀察與列表視圖 */
+          <>
+            {activeTab === 'grid' && (
+              <SidebarFilters
+                search={search}
+                setSearch={setSearch}
+                styleFilter={styleFilter}
+                setStyleFilter={setStyleFilter}
+                minScore={minScore}
+                setMinScore={setMinScore}
+                yieldToggle={yieldToggle}
+                setYieldToggle={setYieldToggle}
+                timingToggle={timingToggle}
+                setTimingToggle={setTimingToggle}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+              />
             )}
 
-            <div className="tab-buttons">
-              <button
-                className={`btn-tab ${activeTab === 'grid' ? 'active' : ''}`}
-                onClick={() => setActiveTab('grid')}
-              >
-                🔍 推薦觀察清單
-              </button>
-              <button
-                className={`btn-tab ${activeTab === 'portfolio' ? 'active' : ''}`}
-                onClick={() => setActiveTab('portfolio')}
-              >
-                💼 最愛與持股監控
-              </button>
-            </div>
-          </div>
+            <div className="stock-grid-container">
+              <div className="grid-header">
+                {activeTab === 'grid' ? (
+                  <div className="results-count">
+                    篩選結果：共 <span>{sortedStocks.length}</span> 檔推薦觀察股
+                  </div>
+                ) : activeTab === 'portfolio' ? (
+                  <div className="results-count">
+                    我的最愛與持股監控控制台
+                  </div>
+                ) : (
+                  <div className="results-count">
+                    加權指數與國際情勢戰略對策室
+                  </div>
+                )}
 
-          {/* 渲染主頁面內容 */}
-          {activeTab === 'grid' ? (
-            sortedStocks.length === 0 ? (
-              <div className="empty-state" style={{ padding: '5rem 2rem' }}>
-                <div className="empty-icon">📂</div>
-                <div className="empty-text" style={{ fontSize: '1rem', fontWeight: 600 }}>沒有符合目前篩選條件的股票。</div>
-                <div className="empty-text" style={{ marginTop: '0.5rem' }}>請嘗試調整搜尋關鍵字、推薦分數滑桿或放寬進階篩選條件。</div>
+                <div className="tab-buttons">
+                  <button
+                    className={`btn-tab ${activeTab === 'grid' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('grid')}
+                  >
+                    🔍 推薦觀察清單
+                  </button>
+                  <button
+                    className={`btn-tab ${activeTab === 'portfolio' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('portfolio')}
+                  >
+                    💼 最愛與持股監控
+                  </button>
+                  <button
+                    className={`btn-tab ${activeTab === 'market' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('market')}
+                  >
+                    🌐 大盤與國際情勢
+                  </button>
+                </div>
               </div>
-            ) : (
-              <div className="cards-grid">
-                {sortedStocks.map(stock => (
-                  <StockCard
-                    key={stock.stock_id}
-                    stock={stock}
-                    isFavorite={favorites.includes(stock.stock_id)}
-                    onToggleFavorite={handleToggleFavorite}
-                  />
-                ))}
-              </div>
-            )
-          ) : (
-            <PortfolioMonitor
-              stocks={stocks}
-              favorites={favorites}
-              onToggleFavorite={handleToggleFavorite}
-              holdings={holdings}
-              onAddHolding={handleAddHolding}
-              onRemoveHolding={handleRemoveHolding}
-            />
-          )}
-        </div>
+
+              {activeTab === 'grid' ? (
+                sortedStocks.length === 0 ? (
+                  <div className="empty-state" style={{ padding: '5rem 2rem' }}>
+                    <div className="empty-icon">📂</div>
+                    <div className="empty-text" style={{ fontSize: '1rem', fontWeight: 600 }}>沒有符合目前篩選條件的股票。</div>
+                    <div className="empty-text" style={{ marginTop: '0.5rem' }}>請嘗試調整搜尋關鍵字、推薦分數滑桿或放寬進階篩選條件。</div>
+                  </div>
+                ) : (
+                  <div className="cards-grid">
+                    {sortedStocks.map(stock => (
+                      <StockCard
+                        key={stock.stock_id}
+                        stock={stock}
+                        isFavorite={favorites.includes(stock.stock_id)}
+                        onToggleFavorite={handleToggleFavorite}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : activeTab === 'portfolio' ? (
+                <PortfolioMonitor
+                  stocks={stocks}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  holdings={holdings}
+                  onAddHolding={handleAddHolding}
+                  onRemoveHolding={handleRemoveHolding}
+                />
+              ) : (
+                <MarketTrends />
+              )}
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

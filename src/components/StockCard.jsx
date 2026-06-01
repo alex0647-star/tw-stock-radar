@@ -18,7 +18,10 @@ export default function StockCard({ stock, isFavorite, onToggleFavorite }) {
     timestamps,
     timing_status,
     strategy,
-    reason
+    reason,
+    analyst_action,
+    core_risk,
+    global_linkage
   } = stock;
 
   const isUp = change >= 0;
@@ -38,23 +41,48 @@ export default function StockCard({ stock, isFavorite, onToggleFavorite }) {
     timingClass = 'buy';
   }
 
-  return (
-    <article className="stock-card">
-      {/* 最愛按鈕 */}
-      <button 
-        className={`btn-favorite-card ${isFavorite ? 'active' : ''}`}
-        onClick={() => onToggleFavorite(stock_id)}
-        title={isFavorite ? "從觀察清單移除" : "加入觀察清單"}
-      >
-        ♥
-      </button>
+  // 點擊卡片跳轉詳情頁面，排除按鈕與摺疊面板
+  const handleCardClick = (e) => {
+    if (e.target.closest('button') || e.target.closest('.strategy-accord')) {
+      return;
+    }
+    window.location.hash = `#/stock/${stock_id}`;
+  };
 
+  return (
+    <article 
+      className="stock-card" 
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer' }}
+    >
       {/* 卡片頭部 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div className="card-header-info">
           <div className="card-title-sec">
-            <h2 className="card-ticker">
+            <h2 className="card-ticker" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               {stock_id} <span>{stock_name}</span>
+              <button 
+                className={`btn-favorite-card-inline ${isFavorite ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(stock_id);
+                }}
+                title={isFavorite ? "從觀察清單移除" : "加入觀察清單"}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: isFavorite ? 'var(--color-up)' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  padding: '0 0.25rem',
+                  lineHeight: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'var(--transition)'
+                }}
+              >
+                ♥
+              </button>
             </h2>
             <div className="card-category">
               {category} • {sub_category}
@@ -85,7 +113,6 @@ export default function StockCard({ stock, isFavorite, onToggleFavorite }) {
         <div className="score-circle-container">
           <div className="score-circle-ui">
             <svg height="54" width="54" className="score-svg">
-              {/* 定義漸層色 */}
               <defs>
                 <linearGradient id="score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="var(--accent-blue)" />
@@ -204,6 +231,41 @@ export default function StockCard({ stock, isFavorite, onToggleFavorite }) {
       {/* 推薦理由簡述 */}
       <div className="reason-box" title={reason}>
         {reason}
+      </div>
+
+      {/* 📁 專業分析師診斷與國際局勢 */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.015)',
+        border: '1px solid rgba(255, 255, 255, 0.04)',
+        padding: '0.65rem',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.4rem'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700 }}>🔍 分析師動作建議</span>
+          <span style={{
+            fontSize: '0.7rem',
+            fontWeight: 800,
+            color: analyst_action.includes('強力買進') ? 'var(--color-up)' : 
+                   analyst_action.includes('分批') ? 'var(--accent-blue)' : 'var(--text-secondary)',
+            background: analyst_action.includes('強力買進') ? 'rgba(255, 77, 79, 0.08)' : 
+                       analyst_action.includes('分批') ? 'rgba(59, 130, 246, 0.08)' : 'rgba(255,255,255,0.03)',
+            padding: '0.12rem 0.4rem',
+            borderRadius: '4px',
+            border: `1px solid ${analyst_action.includes('強力買進') ? 'rgba(255, 77, 79, 0.2)' : 
+                                   analyst_action.includes('分批') ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.06)'}`
+          }}>
+            {analyst_action}
+          </span>
+        </div>
+        <div style={{ fontSize: '0.7rem', color: 'rgba(245, 158, 11, 0.85)', lineHeight: 1.35 }}>
+          ⚠️ <strong>核心風險：</strong>{core_risk}
+        </div>
+        <div style={{ fontSize: '0.7rem', color: 'rgba(6, 182, 212, 0.85)', lineHeight: 1.35 }}>
+          🌐 <strong>國際連動：</strong>{global_linkage}
+        </div>
       </div>
 
       {/* 具體策略摺疊區 */}
