@@ -71,6 +71,114 @@ export default function App() {
   const [route, setRoute] = useState({ path: 'list', stockId: null });
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
+  // 實時刷新狀態管理
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [marketIndex, setMarketIndex] = useState({
+    value: 45182.50,
+    change: 312.80,
+    changePercent: 0.70,
+    volume: 5420,
+    date: '2026-06-05',
+    time: '10:44:43'
+  });
+
+  // 實時更新核心處理器 (支援後端 API 與前端落底 Fallback 模擬)
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    
+    // 延遲 600ms 以提供流暢的旋轉動畫載入感
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    try {
+      // 1. 嘗試串接後端 API 獲取最新大盤與個股數據
+      const indexRes = await fetch('http://localhost:5000/api/market-index');
+      const stocksRes = await fetch('http://localhost:5000/api/stocks-update');
+      
+      if (indexRes.ok && stocksRes.ok) {
+        const indexData = await indexRes.json();
+        const stocksUpdateData = await stocksRes.json();
+        
+        setMarketIndex(indexData);
+        setStocks(prevStocks => 
+          prevStocks.map(stock => {
+            const update = stocksUpdateData[stock.stock_id];
+            if (update) {
+              return {
+                ...stock,
+                current_price: update.current_price,
+                change: update.change,
+                change_percent: update.change_percent,
+                volume: update.volume,
+                timestamps: {
+                  ...stock.timestamps,
+                  price_date: indexData.date
+                }
+              };
+            }
+            return stock;
+          })
+        );
+        setIsRefreshing(false);
+        return;
+      }
+    } catch (e) {
+      console.warn("無法串接後端刷新 API，啟用前端備用隨機模擬刷新機制。");
+    }
+
+    // 2. Fallback: 前端防禦性模擬刷新 (讓無後端環境也能 100% 流暢運作)
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dateStr = now.toISOString().split('T')[0];
+    
+    // 模擬大盤波動
+    setMarketIndex(prev => {
+      const diff = parseFloat(((Math.random() - 0.45) * 80).toFixed(2));
+      const newValue = parseFloat((prev.value + diff).toFixed(2));
+      const newChange = parseFloat((prev.change + diff).toFixed(2));
+      const newPercent = parseFloat(((newChange / 44800) * 100).toFixed(2));
+      return {
+        value: newValue,
+        change: newChange,
+        changePercent: newPercent,
+        volume: Math.floor(5200 + (Math.random() - 0.5) * 500),
+        date: dateStr,
+        time: timeStr
+      };
+    });
+
+    // 模擬個股隨機跳動
+    setStocks(prevStocks => 
+      prevStocks.map(stock => {
+        // 隨機波動率 -1.5% 到 +1.8%
+        const pct = (Math.random() * 3.3 - 1.5) / 100;
+        const priceDiff = stock.current_price * pct;
+        
+        // 保留合理的小數點位數
+        const priceScale = stock.current_price > 100 ? 1 : 2;
+        const newPrice = parseFloat(Math.max(1.0, stock.current_price + priceDiff).toFixed(priceScale));
+        
+        // 昨收價為基準計算漲跌
+        const yesterdayPrice = stock.current_price - stock.change;
+        const newChange = parseFloat((newPrice - yesterdayPrice).toFixed(2));
+        const newChangePercent = parseFloat(((newChange / yesterdayPrice) * 100).toFixed(2));
+        
+        return {
+          ...stock,
+          current_price: newPrice,
+          change: newChange,
+          change_percent: newChangePercent,
+          volume: Math.floor(stock.volume * (1 + (Math.random() - 0.3) * 0.05)),
+          timestamps: {
+            ...stock.timestamps,
+            price_date: dateStr
+          }
+        };
+      })
+    );
+
+    setIsRefreshing(false);
+  };
+
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
@@ -187,7 +295,11 @@ export default function App() {
     <div className="app-container">
       {/* 置頂頁首與分頁控制欄 */}
       <header className="app-header">
-        <Navbar />
+        <Navbar 
+          marketIndex={marketIndex} 
+          onRefresh={handleRefresh} 
+          isRefreshing={isRefreshing} 
+        />
 
         {/* 全域置頂分頁控制欄 */}
         <div className="sticky-tab-bar">

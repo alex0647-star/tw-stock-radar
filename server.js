@@ -29,6 +29,58 @@ const stockBasePrices = {
   "2002": 23.5    // 中鋼
 };
 
+// 模擬大盤狀態
+let marketIndexState = {
+  value: 45182.50,
+  change: 312.80,
+  changePercent: 0.70,
+  volume: 5420
+};
+
+// GET /api/market-index
+app.get('/api/market-index', (req, res) => {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const dateStr = now.toISOString().split('T')[0];
+  
+  // 模擬大盤即時跳動
+  const diff = parseFloat(((Math.random() - 0.45) * 80).toFixed(2));
+  marketIndexState.value = parseFloat((marketIndexState.value + diff).toFixed(2));
+  marketIndexState.change = parseFloat((marketIndexState.change + diff).toFixed(2));
+  marketIndexState.changePercent = parseFloat(((marketIndexState.change / 44800) * 100).toFixed(2));
+  marketIndexState.volume = Math.floor(5200 + (Math.random() - 0.5) * 500);
+  
+  res.json({
+    ...marketIndexState,
+    date: dateStr,
+    time: timeStr
+  });
+});
+
+// GET /api/stocks-update
+app.get('/api/stocks-update', (req, res) => {
+  const updates = {};
+  
+  // 為所有在 stockBasePrices 中的股票代號生成隨機波動後的最新數值
+  Object.keys(stockBasePrices).forEach(code => {
+    const basePrice = stockBasePrices[code];
+    // 基於對照價，隨機產生漲跌幅 (-3% 到 +5%)
+    const changePercent = parseFloat((Math.random() * 8 - 3).toFixed(2));
+    const change = parseFloat((basePrice * (changePercent / 100)).toFixed(1));
+    const currentPrice = parseFloat((basePrice + change).toFixed(code === '2891' || code === '2002' ? 2 : 1));
+    const volume = Math.floor(Math.random() * 50000) + 2000;
+    
+    updates[code] = {
+      current_price: currentPrice,
+      change: change,
+      change_percent: changePercent,
+      volume: volume
+    };
+  });
+  
+  res.json(updates);
+});
+
 // GET /api/stock/:code/realtime
 // 獲取該股票當天每分鐘的即時走勢（模擬台股 9:00 - 13:30 共 270 分鐘數據）
 app.get('/api/stock/:code/realtime', (req, res) => {
