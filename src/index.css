@@ -1374,8 +1374,15 @@ input:checked + .slider-switch:before {
   background-color: transparent;
   padding: 0 2rem 0.75rem 2rem; /* 桌機版與 navbar padding 對齊 */
   display: flex;
-  justify-content: flex-end; /* 桌機版靠右顯示 */
+  width: 100%;
   transition: var(--transition);
+}
+
+.tab-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -1385,6 +1392,14 @@ input:checked + .slider-switch:before {
     margin-bottom: 0;
   }
   
+  .tab-bar-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+  }
+
   /* 手機版頁首底邊發光效果 */
   .app-header {
     border-bottom: 1.5px solid var(--border-active); /* 精緻置頂發光分割線，更有質感 */
@@ -1431,6 +1446,24 @@ input:checked + .slider-switch:before {
 
 .btn-refresh.refreshing .refresh-icon {
   animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .btn-refresh {
+    padding: 0.45rem;
+    min-width: 34px;
+    height: 34px;
+    justify-content: center;
+  }
+  
+  .btn-refresh .refresh-text {
+    display: none; /* 手機端隱藏文字，僅顯示圖示 */
+  }
+  
+  .btn-refresh .refresh-icon {
+    margin: 0;
+    font-size: 1rem;
+  }
 }
 
 @keyframes spin {

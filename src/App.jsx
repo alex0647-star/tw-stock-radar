@@ -311,41 +311,50 @@ export default function App() {
     <div className="app-container">
       {/* 置頂頁首與分頁控制欄 */}
       <header className="app-header">
-        <Navbar 
-          marketIndex={marketIndex} 
-          onRefresh={handleRefresh} 
-          isRefreshing={isRefreshing} 
-        />
+        <Navbar marketIndex={marketIndex} />
 
         {/* 全域置頂分頁控制欄 */}
         <div className="sticky-tab-bar">
-          <div className="tab-buttons">
+          <div className="tab-bar-container">
+            <div className="tab-buttons">
+              <button
+                className={`btn-tab ${activeTab === 'grid' && route.path === 'list' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('grid');
+                  window.location.hash = ''; // 清除 Hash，無縫回到列表
+                }}
+              >
+                🔍 推薦觀察清單
+              </button>
+              <button
+                className={`btn-tab ${activeTab === 'portfolio' && route.path === 'list' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('portfolio');
+                  window.location.hash = ''; // 清除 Hash，無縫回到列表
+                }}
+              >
+                💼 最愛與持股監控
+              </button>
+              <button
+                className={`btn-tab ${activeTab === 'market' && route.path === 'list' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('market');
+                  window.location.hash = ''; // 清除 Hash，無縫回到列表
+                }}
+              >
+                🌐 大盤與國際情勢
+              </button>
+            </div>
+
+            {/* 隨時更新按鈕 (移至與分頁按鈕並列) */}
             <button
-              className={`btn-tab ${activeTab === 'grid' && route.path === 'list' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveTab('grid');
-                window.location.hash = ''; // 清除 Hash，無縫回到列表
-              }}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className={`btn-refresh ${isRefreshing ? 'refreshing' : ''}`}
+              title="點擊隨時更新股市現狀與 AI 分析"
             >
-              🔍 推薦觀察清單
-            </button>
-            <button
-              className={`btn-tab ${activeTab === 'portfolio' && route.path === 'list' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveTab('portfolio');
-                window.location.hash = ''; // 清除 Hash，無縫回到列表
-              }}
-            >
-              💼 最愛與持股監控
-            </button>
-            <button
-              className={`btn-tab ${activeTab === 'market' && route.path === 'list' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveTab('market');
-                window.location.hash = ''; // 清除 Hash，無縫回到列表
-              }}
-            >
-              🌐 大盤與國際情勢
+              <span className="refresh-icon">🔄</span>
+              <span className="refresh-text">{isRefreshing ? '更新中...' : '隨時更新'}</span>
             </button>
           </div>
         </div>

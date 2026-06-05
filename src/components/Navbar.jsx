@@ -8,9 +8,7 @@ export default function Navbar({
     volume: 5420,
     date: '2026-06-05',
     time: '10:44:43'
-  },
-  onRefresh,
-  isRefreshing = false
+  }
 }) {
   const isUp = marketIndex.change >= 0;
 
@@ -42,17 +40,6 @@ export default function Navbar({
           <span>更新時間：{marketIndex.time}</span>
           <span style={{ fontSize: '0.75rem', marginTop: '0.15rem' }}>資料基準日：{marketIndex.date}</span>
         </div>
-
-        {/* 隨時更新按鈕 */}
-        <button
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          className={`btn-refresh ${isRefreshing ? 'refreshing' : ''}`}
-          title="點擊隨時更新股市現狀與 AI 分析"
-        >
-          <span className="refresh-icon">🔄</span>
-          <span className="refresh-text">{isRefreshing ? '更新中...' : '隨時更新'}</span>
-        </button>
       </div>
     </nav>
   );
