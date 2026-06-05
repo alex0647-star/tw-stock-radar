@@ -10,7 +10,19 @@ import TopChipsRadar from './components/TopChipsRadar';
 
 export default function App() {
   // 狀態管理
-  const [stocks, setStocks] = useState(stockData);
+  const [stocks, setStocks] = useState(() => {
+    // 預設將資料庫中的日期初始化為「今天」的日期，實現每日更新的效果
+    const todayStr = new Date().toISOString().split('T')[0];
+    return stockData.map(stock => ({
+      ...stock,
+      timestamps: {
+        ...stock.timestamps,
+        price_date: todayStr,
+        inst_date: todayStr,
+        broker_date: todayStr
+      }
+    }));
+  });
   const [search, setSearch] = useState('');
   const [styleFilter, setStyleFilter] = useState('ALL');
   const [minScore, setMinScore] = useState(70);
@@ -111,7 +123,9 @@ export default function App() {
                 volume: update.volume,
                 timestamps: {
                   ...stock.timestamps,
-                  price_date: indexData.date
+                  price_date: indexData.date,
+                  inst_date: indexData.date,
+                  broker_date: indexData.date
                 }
               };
             }
@@ -170,7 +184,9 @@ export default function App() {
           volume: Math.floor(stock.volume * (1 + (Math.random() - 0.3) * 0.05)),
           timestamps: {
             ...stock.timestamps,
-            price_date: dateStr
+            price_date: dateStr,
+            inst_date: dateStr,
+            broker_date: dateStr
           }
         };
       })
@@ -371,7 +387,7 @@ export default function App() {
             )}
 
             <div className="stock-grid-container">
-              {activeTab === 'grid' && <TopChipsRadar />}
+              {activeTab === 'grid' && <TopChipsRadar stocks={stocks} />}
               <div className="grid-header">
                 {activeTab === 'grid' ? (
                   <div className="results-count">
@@ -417,7 +433,7 @@ export default function App() {
                   onRemoveHolding={handleRemoveHolding}
                 />
               ) : (
-                <MarketTrends favorites={favorites} stocks={stocks} />
+                <MarketTrends favorites={favorites} stocks={stocks} marketIndex={marketIndex} />
               )}
             </div>
           </>

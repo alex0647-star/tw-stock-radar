@@ -1,6 +1,17 @@
 import React from 'react';
 
-export default function MarketTrends({ favorites = [], stocks = [] }) {
+export default function MarketTrends({ 
+  favorites = [], 
+  stocks = [], 
+  marketIndex = {
+    value: 45182.50,
+    change: 312.80,
+    changePercent: 0.70,
+    volume: 5420,
+    date: '2026-06-05',
+    time: '10:44:43'
+  }
+}) {
   
   // 篩選最愛股票
   const favoriteStocks = stocks.filter(s => favorites.includes(s.stock_id));
@@ -113,13 +124,13 @@ export default function MarketTrends({ favorites = [], stocks = [] }) {
         {/* 左大欄：大盤現況診斷 */}
         <div className="lg:col-span-2 bg-tw-bg-secondary border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
           <h2 className="text-lg font-bold flex items-center gap-2 border-b border-white/5 pb-3">
-            📈 加權指數技術與籌碼診斷 (2026年6月)
+            📈 加權指數技術與籌碼診斷 ({marketIndex.date})
           </h2>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-tw-bg-primary border border-white/5 p-4 rounded-xl">
             <div className="flex flex-col">
               <span className="text-xs text-gray-500 font-semibold">當前位階</span>
-              <span className="text-lg font-extrabold monospace mt-1 text-tw-up">45,182.50</span>
+              <span className="text-lg font-extrabold monospace mt-1 text-tw-up">{marketIndex.value.toLocaleString('zh-TW', { minimumFractionDigits: 2 })}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-500 font-semibold">乖離率 (BIAS 20MA)</span>
@@ -199,12 +210,12 @@ export default function MarketTrends({ favorites = [], stocks = [] }) {
         <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-white/5 pb-3 gap-2">
           <div className="flex flex-col">
             <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">
-              🔮 AI 專業個股進出場點與操作策略精準對策面板 (AI Trading Decisions)
+              🔮 AI 專業個股進出場點與操作策略精準對策面板 ({marketIndex.date})
             </h2>
             <p className="text-xs text-gray-500 mt-1">結合價格 + 分點 + 技術面交叉共振篩選，給予焦點強股最明晰的買賣與停損對策</p>
           </div>
           <span className="text-xs text-amber-500 font-bold bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full self-start sm:self-auto">
-            ⚡ 盤後 AI 決策室
+            ⚡ 盤後 AI 決策室 ({marketIndex.date})
           </span>
         </div>
 

@@ -54,7 +54,7 @@ export const topChipsStocks = [
   }
 ];
 
-export default function TopChipsRadar() {
+export default function TopChipsRadar({ stocks = [] }) {
   const handleStockClick = (code) => {
     window.location.hash = `#/stock/${code}`;
   };
@@ -70,7 +70,10 @@ export default function TopChipsRadar() {
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {topChipsStocks.map((item) => {
-          const isUp = item.change_percent >= 0;
+          const currentStock = stocks.find(s => s.stock_id === item.stock_id) || {};
+          const closePrice = currentStock.current_price || item.close_price;
+          const changePercent = currentStock.change_percent !== undefined ? currentStock.change_percent : item.change_percent;
+          const isUp = changePercent >= 0;
           return (
             <div
               key={item.rank}
@@ -103,7 +106,7 @@ export default function TopChipsRadar() {
                 <div className="flex flex-col">
                   <span className="text-[10px] text-gray-500 font-semibold uppercase">今日收盤</span>
                   <span className="text-sm font-bold monospace leading-none mt-1" style={{ color: isUp ? 'var(--color-up)' : 'var(--color-down)' }}>
-                    {item.close_price.toLocaleString('zh-TW', { minimumFractionDigits: 1 })}
+                    {closePrice.toLocaleString('zh-TW', { minimumFractionDigits: 1 })}
                   </span>
                 </div>
                 <div className="text-right flex flex-col">
@@ -114,7 +117,7 @@ export default function TopChipsRadar() {
                 </div>
               </div>
 
-              {/* 分析師點評 */}
+              {/* 推薦理由 */}
               <p className="text-xs text-gray-400 leading-relaxed line-clamp-3 group-hover:text-gray-300 transition-colors">
                 {item.comment}
               </p>
