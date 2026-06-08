@@ -85,13 +85,18 @@ export default function App() {
 
   // 實時刷新狀態管理
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [marketIndex, setMarketIndex] = useState({
-    value: 45182.50,
-    change: 312.80,
-    changePercent: 0.70,
-    volume: 5420,
-    date: '2026-06-05',
-    time: '10:44:43'
+  const [marketIndex, setMarketIndex] = useState(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return {
+      value: 45182.50,
+      change: 312.80,
+      changePercent: 0.70,
+      volume: 5420,
+      date: todayStr,
+      time: timeStr
+    };
   });
 
   // 實時更新核心處理器 (支援後端 API 與前端落底 Fallback 模擬)
