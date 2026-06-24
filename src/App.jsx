@@ -122,10 +122,7 @@ export default function App() {
             if (update) {
               return {
                 ...stock,
-                current_price: update.current_price,
-                change: update.change,
-                change_percent: update.change_percent,
-                volume: update.volume,
+                ...update,
                 timestamps: {
                   ...stock.timestamps,
                   price_date: indexData.date,
