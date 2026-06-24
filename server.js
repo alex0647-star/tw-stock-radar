@@ -11,7 +11,7 @@ app.use(express.json());
 const stockBasePrices = {
   "2330": 2415.0, // 台積電 (前收盤，今日 2390.0)
   "2317": 259.5,  // 鴻海 (前收盤，今日 256.0)
-  "2454": 4430.0, // 聯發科 (前收盤，今日 4390.0)
+  "2454": 4535.0, // 聯發科 (前收盤，今日 4285.0)
   "2382": 480.0,  // 廣達
   "3017": 1250.0, // 奇鋐
   "3324": 1180.0, // 雙鴻
@@ -38,19 +38,72 @@ let marketIndexState = {
   volume: 5420
 };
 
+// TWSE API 即時抓取輔助函式 (含防禦性 Timeout 與 Error Handling)
+async function fetchTwseData(exChs) {
+  try {
+    const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${exChs}&_=${Date.now()}`;
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Referer": "https://mis.twse.com.tw/stock/index.jsp?lang=zhHant"
+      },
+      signal: AbortSignal.timeout(4000)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP 錯誤狀態: ${response.status}`);
+    }
+    const data = await response.json();
+    if (data && data.rtcode === "0000" && data.msgArray) {
+      return data.msgArray;
+    }
+    throw new Error(data.rtmessage || "API 內部錯誤");
+  } catch (error) {
+    console.error("[TWSE 同步錯誤]:", error.message);
+    return null;
+  }
+}
+
 // GET /api/market-index
-app.get('/api/market-index', (req, res) => {
+app.get('/api/market-index', async (req, res) => {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const dateStr = now.toISOString().split('T')[0];
   
-  // 模擬大盤即時跳動
+  const twseData = await fetchTwseData("tse_t00.tw");
+  if (twseData && twseData.length > 0) {
+    const item = twseData[0];
+    const zVal = parseFloat(item.z);
+    const yVal = parseFloat(item.y);
+    if (!isNaN(zVal) && !isNaN(yVal)) {
+      const change = parseFloat((zVal - yVal).toFixed(2));
+      const changePercent = parseFloat(((change / yVal) * 100).toFixed(2));
+      const volume = Math.floor(parseFloat(item.m || "0") / 100) || 5420;
+      
+      marketIndexState = {
+        value: zVal,
+        change: change,
+        changePercent: changePercent,
+        volume: volume
+      };
+      
+      const formattedDate = item.d ? `${item.d.substring(0, 4)}-${item.d.substring(4, 6)}-${item.d.substring(6, 8)}` : dateStr;
+      console.log(`[API] 大盤加權指數已同步自 TWSE: ${zVal} (${changePercent}%)`);
+      return res.json({
+        ...marketIndexState,
+        date: formattedDate,
+        time: item.t || timeStr
+      });
+    }
+  }
+
+  // Fallback: 模擬大盤即時跳動
   const diff = parseFloat(((Math.random() - 0.45) * 80).toFixed(2));
   marketIndexState.value = parseFloat((marketIndexState.value + diff).toFixed(2));
   marketIndexState.change = parseFloat((marketIndexState.change + diff).toFixed(2));
   marketIndexState.changePercent = parseFloat(((marketIndexState.change / 44800) * 100).toFixed(2));
   marketIndexState.volume = Math.floor(5200 + (Math.random() - 0.5) * 500);
   
+  console.log(`[API] 大盤連線失敗，啟用模擬大盤數據: ${marketIndexState.value}`);
   res.json({
     ...marketIndexState,
     date: dateStr,
@@ -59,13 +112,73 @@ app.get('/api/market-index', (req, res) => {
 });
 
 // GET /api/stocks-update
-app.get('/api/stocks-update', (req, res) => {
-  const updates = {};
+app.get('/api/stocks-update', async (req, res) => {
+  const stockIds = Object.keys(stockBasePrices);
+  const exChs = stockIds.map(code => code === "3324" ? `otc_${code}.tw` : `tse_${code}.tw`).join('|');
   
-  // 為所有在 stockBasePrices 中的股票代號生成隨機波動後的最新數值
-  Object.keys(stockBasePrices).forEach(code => {
+  const twseData = await fetchTwseData(exChs);
+  const updates = {};
+
+  if (twseData && twseData.length > 0) {
+    twseData.forEach(item => {
+      const code = item.c;
+      if (code) {
+        let currentPrice = parseFloat(item.z);
+        if (isNaN(currentPrice) || currentPrice === 0) {
+          currentPrice = parseFloat(item.pz);
+        }
+        if (isNaN(currentPrice) || currentPrice === 0) {
+          currentPrice = parseFloat(item.o);
+        }
+        if (isNaN(currentPrice) || currentPrice === 0) {
+          currentPrice = parseFloat(item.y);
+        }
+        
+        const yesterdayClose = parseFloat(item.y);
+        const volume = parseInt(item.v || "0") * 10;
+        
+        if (!isNaN(currentPrice) && !isNaN(yesterdayClose)) {
+          const change = parseFloat((currentPrice - yesterdayClose).toFixed(1));
+          const changePercent = parseFloat(((change / yesterdayClose) * 100).toFixed(2));
+          
+          updates[code] = {
+            current_price: currentPrice,
+            change: change,
+            change_percent: changePercent,
+            volume: volume || 2000
+          };
+          
+          // 同步更新記憶體中的基準價格，使詳情頁與 K 線走勢的開高低收等模擬計算也能同步基於真實收盤價
+          stockBasePrices[code] = yesterdayClose;
+        }
+      }
+    });
+    
+    // 檢查是否有 API 漏給的個股，若有則以模擬補齊
+    stockIds.forEach(code => {
+      if (!updates[code]) {
+        const basePrice = stockBasePrices[code];
+        const changePercent = parseFloat((Math.random() * 8 - 3).toFixed(2));
+        const change = parseFloat((basePrice * (changePercent / 100)).toFixed(1));
+        const currentPrice = parseFloat((basePrice + change).toFixed(code === '2891' || code === '2002' ? 2 : 1));
+        const volume = Math.floor(Math.random() * 50000) + 2000;
+        
+        updates[code] = {
+          current_price: currentPrice,
+          change: change,
+          change_percent: changePercent,
+          volume: volume
+        };
+      }
+    });
+
+    console.log(`[API] 已自 TWSE 同步並更新共 ${Object.keys(updates).length} 檔個股行情與交易量`);
+    return res.json(updates);
+  }
+
+  // Fallback: 當連線 TWSE API 失敗時，採用前端落底模擬
+  stockIds.forEach(code => {
     const basePrice = stockBasePrices[code];
-    // 基於對照價，隨機產生漲跌幅 (-3% 到 +5%)
     const changePercent = parseFloat((Math.random() * 8 - 3).toFixed(2));
     const change = parseFloat((basePrice * (changePercent / 100)).toFixed(1));
     const currentPrice = parseFloat((basePrice + change).toFixed(code === '2891' || code === '2002' ? 2 : 1));
@@ -79,6 +192,7 @@ app.get('/api/stocks-update', (req, res) => {
     };
   });
   
+  console.log(`[API] 連線 TWSE 失敗，已採用預設模擬數據更新個股`);
   res.json(updates);
 });
 

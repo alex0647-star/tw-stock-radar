@@ -217,6 +217,11 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  // 頁面首次載入時自動執行一次更新，同步真實台灣股市與加權指數資料
+  useEffect(() => {
+    handleRefresh();
+  }, []);
+
   // 切換最愛
   // 切換最愛 (同步寫入 localStorage，防範 Strict Mode 或閉包異步問題)
   const handleToggleFavorite = (stockId) => {
