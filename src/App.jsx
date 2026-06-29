@@ -7,6 +7,7 @@ import StockDetail from './components/StockDetail';
 import MarketTrends from './components/MarketTrends';
 import { stockData } from './data/stocks';
 import TopChipsRadar from './components/TopChipsRadar';
+import AiChatPanel from './components/AiChatPanel';
 
 export default function App() {
   // 狀態管理
@@ -351,6 +352,15 @@ export default function App() {
               >
                 🌐 大盤與國際情勢
               </button>
+              <button
+                className={`btn-tab ${activeTab === 'chat' && route.path === 'list' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('chat');
+                  window.location.hash = ''; // 清除 Hash，無縫回到列表
+                }}
+              >
+                💬 AI分析對話
+              </button>
             </div>
 
             {/* 隨時更新按鈕 (移至與分頁按鈕並列) */}
@@ -413,9 +423,13 @@ export default function App() {
                   <div className="results-count">
                     我的最愛與持股監控控制台
                   </div>
-                ) : (
+                ) : activeTab === 'market' ? (
                   <div className="results-count">
                     加權指數與國際情勢戰略對策室
+                  </div>
+                ) : (
+                  <div className="results-count">
+                    專業台股 AI 策略診斷對話室
                   </div>
                 )}
               </div>
@@ -448,8 +462,10 @@ export default function App() {
                   onAddHolding={handleAddHolding}
                   onRemoveHolding={handleRemoveHolding}
                 />
-              ) : (
+              ) : activeTab === 'market' ? (
                 <MarketTrends favorites={favorites} stocks={stocks} marketIndex={marketIndex} />
+              ) : (
+                <AiChatPanel stocks={stocks} />
               )}
             </div>
           </>
