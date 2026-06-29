@@ -109,8 +109,8 @@ export default function App() {
 
     try {
       // 1. 嘗試串接後端 API 獲取最新大盤與個股數據
-      const indexRes = await fetch('http://localhost:5000/api/market-index');
-      const stocksRes = await fetch('http://localhost:5000/api/stocks-update');
+      const indexRes = await fetch('/api/market-index');
+      const stocksRes = await fetch('/api/stocks-update');
       
       if (indexRes.ok && stocksRes.ok) {
         const indexData = await indexRes.json();

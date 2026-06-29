@@ -1,11 +1,19 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// 靜態託管編譯後的前端 dist 目錄 (這樣只啟動一個 Express 伺服器就能運行完整網頁與 API)
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // 模擬股票基本對照價
 const stockBasePrices = {
@@ -556,6 +564,14 @@ app.get('/api/stock/:code/kline', (req, res) => {
   
   console.log(`[API] 獲取股票 ${code} 歷史 K 線數據 (${type})，共 ${result.length} 筆`);
   res.json(result);
+});
+
+// 讓所有未匹配的 GET 請求都回到前端 index.html (單頁路由防禦)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {

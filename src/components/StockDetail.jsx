@@ -26,7 +26,7 @@ export default function StockDetail({ stockId }) {
     if (!stockId) return;
     setLoading(true);
     
-    const backendUrl = `http://localhost:5000/api/stock/${stockId}`;
+    const backendUrl = `/api/stock/${stockId}`;
     const url = chartType === 'realtime' 
       ? `${backendUrl}/realtime`
       : `${backendUrl}/kline?type=${chartType === 'daily' ? 'day' : chartType === 'weekly' ? 'week' : 'month'}`;
