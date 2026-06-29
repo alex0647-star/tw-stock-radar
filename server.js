@@ -46,14 +46,13 @@ let marketIndexState = {
   volume: 5420
 };
 
-// TWSE API 即時抓取輔助函式 (含防禦性 Timeout 與 Error Handling)
-async function fetchTwseData(exChs) {
+// Yahoo API 即時抓取輔助函式 (含防禦性 Timeout 與 Error Handling)
+async function fetchYahooChart(symbol) {
   try {
-    const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${exChs}&_=${Date.now()}`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://mis.twse.com.tw/stock/index.jsp?lang=zhHant"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       },
       signal: AbortSignal.timeout(4000)
     });
@@ -61,12 +60,12 @@ async function fetchTwseData(exChs) {
       throw new Error(`HTTP 錯誤狀態: ${response.status}`);
     }
     const data = await response.json();
-    if (data && data.rtcode === "0000" && data.msgArray) {
-      return data.msgArray;
+    if (data && data.chart && data.chart.result && data.chart.result[0]) {
+      return data.chart.result[0].meta;
     }
-    throw new Error(data.rtmessage || "API 內部錯誤");
+    throw new Error("無效的 Yahoo API 回傳格式");
   } catch (error) {
-    console.error("[TWSE 同步錯誤]:", error.message);
+    console.error(`[Yahoo 同步錯誤 - ${symbol}]:`, error.message);
     return null;
   }
 }
@@ -77,15 +76,14 @@ app.get('/api/market-index', async (req, res) => {
   const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const dateStr = now.toISOString().split('T')[0];
   
-  const twseData = await fetchTwseData("tse_t00.tw");
-  if (twseData && twseData.length > 0) {
-    const item = twseData[0];
-    const zVal = parseFloat(item.z);
-    const yVal = parseFloat(item.y);
-    if (!isNaN(zVal) && !isNaN(yVal)) {
+  const meta = await fetchYahooChart("^TWII");
+  if (meta) {
+    const zVal = meta.regularMarketPrice;
+    const yVal = meta.previousClose || meta.chartPreviousClose;
+    if (zVal !== undefined && yVal !== undefined) {
       const change = parseFloat((zVal - yVal).toFixed(2));
       const changePercent = parseFloat(((change / yVal) * 100).toFixed(2));
-      const volume = Math.floor(parseFloat(item.m || "0") / 100) || 5420;
+      const volume = 5420; // 保持穩定的加權指數成交量估計
       
       marketIndexState = {
         value: zVal,
@@ -94,12 +92,11 @@ app.get('/api/market-index', async (req, res) => {
         volume: volume
       };
       
-      const formattedDate = item.d ? `${item.d.substring(0, 4)}-${item.d.substring(4, 6)}-${item.d.substring(6, 8)}` : dateStr;
-      console.log(`[API] 大盤加權指數已同步自 TWSE: ${zVal} (${changePercent}%)`);
+      console.log(`[API] 大盤加權指數已同步自 Yahoo: ${zVal} (${changePercent}%)`);
       return res.json({
         ...marketIndexState,
-        date: formattedDate,
-        time: item.t || timeStr
+        date: dateStr,
+        time: timeStr
       });
     }
   }
@@ -389,34 +386,23 @@ function generateStockAnalysis(code, currentPrice, changePercent) {
 // GET /api/stocks-update
 app.get('/api/stocks-update', async (req, res) => {
   const stockIds = Object.keys(stockBasePrices);
-  const exChs = stockIds.map(code => code === "3324" ? `otc_${code}.tw` : `tse_${code}.tw`).join('|');
-  
-  const twseData = await fetchTwseData(exChs);
   const updates = {};
 
-  if (twseData && twseData.length > 0) {
-    twseData.forEach(item => {
-      const code = item.c;
-      if (code) {
-        let currentPrice = parseFloat(item.z);
-        if (isNaN(currentPrice) || currentPrice === 0) {
-          currentPrice = parseFloat(item.pz);
-        }
-        if (isNaN(currentPrice) || currentPrice === 0) {
-          currentPrice = parseFloat(item.o);
-        }
-        if (isNaN(currentPrice) || currentPrice === 0) {
-          currentPrice = parseFloat(item.y);
-        }
+  try {
+    // 平行發送 19 檔個股的 Yahoo API 請求
+    const promises = stockIds.map(async (code) => {
+      const symbol = code === "3324" ? `${code}.TWO` : `${code}.TW`;
+      const meta = await fetchYahooChart(symbol);
+      if (meta) {
+        const currentPrice = meta.regularMarketPrice;
+        const yesterdayClose = meta.previousClose || meta.chartPreviousClose;
+        const rawVolume = meta.regularMarketVolume || 0;
+        const volume = Math.floor(rawVolume / 100); // 配合張數，並對照前端 volume / 10
         
-        const yesterdayClose = parseFloat(item.y);
-        const volume = parseInt(item.v || "0") * 10;
-        
-        if (!isNaN(currentPrice) && !isNaN(yesterdayClose)) {
+        if (currentPrice !== undefined && yesterdayClose !== undefined) {
           const change = parseFloat((currentPrice - yesterdayClose).toFixed(1));
           const changePercent = parseFloat(((change / yesterdayClose) * 100).toFixed(2));
           
-          // 根據實時行情動態生成 AI 分析
           const aiUpdate = generateStockAnalysis(code, currentPrice, changePercent);
           
           updates[code] = {
@@ -427,12 +413,19 @@ app.get('/api/stocks-update', async (req, res) => {
             ...aiUpdate
           };
           
-          // 同步更新記憶體中的基準價格，使詳情頁與 K 線走勢的開高低收等模擬計算也能同步基於真實收盤價
           stockBasePrices[code] = yesterdayClose;
         }
       }
     });
     
+    await Promise.all(promises);
+  } catch (err) {
+    console.error("[API Stocks Update Error]:", err.message);
+  }
+
+  // 檢查是否成功抓取到個股
+  const keys = Object.keys(updates);
+  if (keys.length > 0) {
     // 檢查是否有 API 漏給的個股，若有則以模擬補齊並生成動態分析
     stockIds.forEach(code => {
       if (!updates[code]) {
@@ -454,11 +447,11 @@ app.get('/api/stocks-update', async (req, res) => {
       }
     });
 
-    console.log(`[API] 已自 TWSE 同步並動態生成共 ${Object.keys(updates).length} 檔個股行情與 AI 分析推薦`);
+    console.log(`[API] 已自 Yahoo 同步並動態生成共 ${Object.keys(updates).length} 檔個股行情與 AI 分析推薦`);
     return res.json(updates);
   }
 
-  // Fallback: 當連線 TWSE API 失敗時，採用前端落底模擬並生成動態分析
+  // Fallback: 當連線 Yahoo API 失敗時，採用前端落底模擬與 AI 分析
   stockIds.forEach(code => {
     const basePrice = stockBasePrices[code];
     const changePercent = parseFloat((Math.random() * 8 - 3).toFixed(2));
@@ -477,7 +470,7 @@ app.get('/api/stocks-update', async (req, res) => {
     };
   });
   
-  console.log(`[API] 連線 TWSE 失敗，已採用預設模擬數據與 AI 動態推薦更新個股`);
+  console.log(`[API] 連線 Yahoo 失敗，已採用預設模擬數據與 AI 動態推薦更新個股`);
   res.json(updates);
 });
 
