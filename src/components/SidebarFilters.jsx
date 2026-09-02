@@ -42,6 +42,16 @@ export default function SidebarFilters({
             全部
           </button>
           <button
+            className={`btn-filter ${styleFilter === '漲幅' ? 'active' : ''}`}
+            style={styleFilter === '漲幅' ? { background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)', color: '#fff', fontWeight: 'bold' } : { borderColor: 'rgba(239, 68, 68, 0.4)' }}
+            onClick={() => {
+              setStyleFilter('漲幅');
+              setSortBy('gainers');
+            }}
+          >
+            🚀 強勢漲幅
+          </button>
+          <button
             className={`btn-filter ${styleFilter === '成長' ? 'active' : ''}`}
             onClick={() => setStyleFilter('成長')}
           >
@@ -117,7 +127,8 @@ export default function SidebarFilters({
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
         >
-          <option value="total">綜合推薦優先</option>
+          <option value="total">綜合推薦優先 (Top 20)</option>
+          <option value="gainers">🚀 今日強勢漲幅最高</option>
           <option value="momentum">短線動能最強</option>
           <option value="valuation">評價安全邊際高 (低PE)</option>
           <option value="dividend">殖利率優先</option>

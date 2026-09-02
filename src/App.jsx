@@ -288,22 +288,31 @@ export default function App() {
   // 篩選與比對邏輯
   const matchesStyle = (stock) => {
     if (styleFilter === 'ALL') return true;
+    if (styleFilter === '漲幅') {
+      return stock.change_percent > 0;
+    }
     if (styleFilter === '成長') {
-      return stock.scores.momentum >= 90 || stock.scores.trend >= 92;
+      return stock.scores.momentum >= 88 || stock.scores.trend >= 90;
     }
     if (styleFilter === '收益') {
-      return stock.dividend_yield >= 3.0 || stock.scores.dividend >= 68;
+      return stock.dividend_yield >= 3.5 || stock.scores.dividend >= 65;
     }
     if (styleFilter === '價值') {
-      return stock.pe_ratio <= 22 || stock.scores.valuation >= 75;
+      return stock.pe_ratio <= 20 || stock.scores.valuation >= 75;
     }
     return true;
   };
 
   const filteredStocks = stocks.filter(stock => {
-    const matchesSearch = stock.stock_id.includes(search) || 
-                          stock.stock_name.includes(search);
-    const matchesScore = stock.scores.total >= minScore;
+    const q = search.trim().toLowerCase();
+    const matchesSearch = !q || 
+                          stock.stock_id.toLowerCase().includes(q) || 
+                          stock.stock_name.toLowerCase().includes(q) ||
+                          (stock.category && stock.category.toLowerCase().includes(q)) ||
+                          (stock.sub_category && stock.sub_category.toLowerCase().includes(q));
+    
+    // 如果使用者正在搜尋特定代號或名稱，則放寬分數限制，優先呈現搜尋結果
+    const matchesScore = q ? true : (stock.scores.total >= minScore);
     const matchesYield = !yieldToggle || stock.dividend_yield >= 4.0;
     const matchesTiming = !timingToggle || 
                           stock.timing_status.status === '可分批布局' || 
@@ -314,6 +323,7 @@ export default function App() {
   });
 
   const sortedStocks = [...filteredStocks].sort((a, b) => {
+    if (sortBy === 'gainers') return b.change_percent - a.change_percent;
     if (sortBy === 'total') return b.scores.total - a.scores.total;
     if (sortBy === 'momentum') return b.scores.momentum - a.scores.momentum;
     if (sortBy === 'valuation') return b.scores.valuation - a.scores.valuation;
@@ -322,6 +332,10 @@ export default function App() {
     if (sortBy === 'trend') return b.scores.trend - a.scores.trend;
     return 0;
   });
+
+  // 判斷是否為預設的 Top 20 展示狀態
+  const isCustomFiltered = search.trim() !== '' || styleFilter !== 'ALL' || yieldToggle || timingToggle || sortBy !== 'total' || minScore > 70;
+  const displayedStocks = isCustomFiltered ? sortedStocks : sortedStocks.slice(0, 20);
 
   return (
     <div className="app-container">
@@ -425,7 +439,11 @@ export default function App() {
               <div className="grid-header">
                 {activeTab === 'grid' ? (
                   <div className="results-count">
-                    篩選結果：共 <span>{sortedStocks.length}</span> 檔推薦觀察股
+                    {isCustomFiltered ? (
+                      <>篩選結果：共 <span>{sortedStocks.length}</span> 檔台股標的</>
+                    ) : (
+                      <>🔥 AI 精選 Top 20 推薦觀察股（全市場資料庫共 <span>{stocks.length}</span> 檔台股，支援全台股搜尋）</>
+                    )}
                   </div>
                 ) : activeTab === 'portfolio' ? (
                   <div className="results-count">
@@ -443,7 +461,7 @@ export default function App() {
               </div>
 
               {activeTab === 'grid' ? (
-                sortedStocks.length === 0 ? (
+                displayedStocks.length === 0 ? (
                   <div className="empty-state" style={{ padding: '5rem 2rem' }}>
                     <div className="empty-icon">📂</div>
                     <div className="empty-text" style={{ fontSize: '1rem', fontWeight: 600 }}>沒有符合目前篩選條件的股票。</div>
@@ -451,7 +469,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="cards-grid">
-                    {sortedStocks.map(stock => (
+                    {displayedStocks.map(stock => (
                       <StockCard
                         key={stock.stock_id}
                         stock={stock}
