@@ -67,7 +67,7 @@ export default function MarketTrends({
   // 國際事件對照矩陣數據
   const matrixData = [
     {
-      event: "NVIDIA 與美股 AI 巨頭資本支出瘋狂擴張 (COMPUTEX 效應)",
+      event: "NVIDIA 與全球雲端巨頭 (CSP) 算力資本支出瘋狂擴張",
       impact: "強烈利多 (產能滿載)",
       sectors: "晶圓代工、AI 伺服器組裝、水冷散熱、高階機殼",
       stocks: [
@@ -79,11 +79,11 @@ export default function MarketTrends({
       ]
     },
     {
-      event: "蘋果 WWDC 開發者大會 & Edge AI 開啟 (Apple Intelligence 換機潮)",
+      event: "旗艦手機與 AI PC 換機潮全面啟動 (端側 Edge AI 普及循環)",
       impact: "中長線利多 (換機循環)",
       sectors: "AI PC、AI 手機、光學鏡頭、晶片設計",
       stocks: [
-        { id: "2317", name: "鴻海", action: "蘋果頂規主力組裝，強力買進" },
+        { id: "2317", name: "鴻海", action: "旗艦機組裝主力，強力買進" },
         { id: "2454", name: "聯發科", action: "Edge AI 旗艦晶片出貨，分批低接" },
         { id: "3008", name: "大立光", action: "潛望鏡鏡頭規格升級，強力買進" }
       ]

@@ -118,259 +118,128 @@ app.get('/api/market-index', async (req, res) => {
 
 // 台灣股票分析師：依日K、週K、月K與國際情勢動態生成個股分析、買賣區間與操作評估
 function generateStockAnalysis(code, currentPrice, changePercent) {
-  const isDown = changePercent < -1.5;
-  const isUp = changePercent > 1.5;
-  
-  // 預設策略與理由模板
-  let timing_status = { status: "區間操作", tags: ["區間操作", "中性看待"] };
-  let strategy = {
-    observe_range: `${(currentPrice * 0.96).toFixed(1)} ~ ${(currentPrice * 1.04).toFixed(1)}`,
-    entry_method: "股價拉回支撐位且量縮時分批建倉",
-    exit_method: "股價挑戰壓力位或出現爆量滯漲時分批停利",
-    stop_loss: `跌破近 10 日最低價或有效跌破防守支撐`
-  };
-  let analyst_action = "區間操作 (分批布局)";
-  let core_risk = "短線市場追價意願不足，且面臨國際股市震盪與法人調節賣壓。";
-  let global_linkage = "高度連動美股納斯達克與台股加權指數的盤面資金流向。";
-  let reason = `截至 2026 年 6 月下旬，${code} 股價表現溫和。日K線目前處於區間整理，週K線與月K線則維持中線上升通道。長線受惠於產業基本面復甦，建議在觀察區間內低買高賣。`;
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
+  const dateStr = `${year}年${month}月${day}日`;
 
-  // 針對核心個股提供細緻與專業的台股分析師解析
-  if (code === "2330") {
-    if (isDown) {
-      timing_status = { status: "等待止跌", tags: ["回檔修正", "中長線機會", "半導體龍頭"] };
-      analyst_action = "分批低接 (等待止跌)";
-      reason = `2026年6月24日，台積電股價隨美股費半指數拉回而重挫。日K線跌破 10日均線，短期指標轉弱，目前正尋求 20日均線（月線）支撐。但週K與月K線仍呈穩健多頭排列。受惠於 CoWoS 先進封裝產能持續滿載，中長線基本面無虞，建議在 2350~2380 元區間分批進場建倉。`;
-      strategy = {
-        observe_range: "2350 ~ 2400",
-        entry_method: "回測月線或 2360 元整數支撐且量縮止跌時分批承接",
-        exit_method: "反彈至 2450 元以上或前波高點 2490 元附近分批停利",
-        stop_loss: "有效收盤跌破 2300 元整數平台"
-      };
-      core_risk = "短線乖離率修正，融資餘額若持續維持高檔，需防範高檔浮額停損賣壓。";
-    } else if (isUp) {
-      timing_status = { status: "等待拉回", tags: ["高檔超買", "強勢續抱", "過熱不追"] };
-      analyst_action = "暫不追高 (強勢續抱)";
-      reason = `台積電近日股價多頭氣勢強勁。日K、週K及月K均呈強烈多頭排列。全球 AI 晶片（如 NVIDIA Blackwell）需求爆炸，CoWoS 產能供不應求，外資持續大舉回補。由於短線正乖離率偏高，不宜在此高位追價，持股者可強勢續抱。`;
-      strategy = {
-        observe_range: "2420 ~ 2490",
-        entry_method: "待股價量縮拉回至 10日均線附近再行布局",
-        exit_method: "突破 2500 元關卡或出現高檔長黑棒時分批獲利了結",
-        stop_loss: "跌破月線 2350 元且法人轉為連續大賣"
-      };
-      core_risk = "主要在於地緣政治風險對供應鏈的潛在衝擊，以及先進封裝擴產時程是否受設備交期延後影響。";
-    } else {
-      timing_status = { status: "可分批布局", tags: ["穩健打底", "多頭排列", "EdgeAI"] };
-      analyst_action = "分批低接 (穩健佈局)";
-      reason = `目前台積電股價呈現高檔強勢整理。日K在月線上方維持橫盤，週K、月K線多頭架構完好。在 COMPUTEX 與 WWDC 展後，AI 與 Edge AI 長線趨勢明朗。長線基本面極度健康，適合中長線資金在 2390 元附近分批建倉佈局。`;
-      strategy = {
-        observe_range: "2380 ~ 2430",
-        entry_method: "於 2390 元整數關卡至月線區間分批佈局",
-        exit_method: "攻克 2480~2500 元以上阻力區分批調節",
-        stop_loss: "收盤跌破 2330 元月線關卡"
-      };
-      core_risk = "近期外資提款美股科技股的連鎖效應，以及高檔個股融資資券洗盤風險。";
-    }
-    global_linkage = "高度連動費城半導體指數與 NVIDIA GPU 出貨表現，並受到美股科技巨頭（微軟、Google、Meta）擴大算力資本支出的直接牽引。";
-  } 
-  else if (code === "2317") {
-    if (isDown) {
-      timing_status = { status: "可分批布局", tags: ["拉回買點", "GB200主線", "蘋果鏈"] };
-      analyst_action = "強力買進 (分批佈局)";
-      reason = `鴻海今日隨大盤拉回。日K跌破 5日線，但週K及月K多頭架構極為穩固。公司為 NVIDIA GB200 伺服器的核心組裝龍頭，預計 Q3 末起正式出貨，下半年營收動能強勁。且 WWDC 發表會後 Apple Intelligence 換機潮利多持續，拉回提供極佳的中長線進場點。`;
-      strategy = {
-        observe_range: "250 ~ 258",
-        entry_method: "回測 250 元整數支撐或月線防守點分批承接",
-        exit_method: "挑戰 270~275 元歷史新高阻力區分批停利",
-        stop_loss: "收盤跌破 243 元且連續三日未能收復"
-      };
-      core_risk = "全球供應鏈缺料（如 ASIC 或水冷接頭短缺）對伺服器出貨時程的影響，以及代工廠產能移轉成本。";
-    } else if (isUp) {
-      timing_status = { status: "等待拉回", tags: ["創高強勢", "多頭軌道", "過熱不追"] };
-      analyst_action = "波段續抱 (等待拉回)";
-      reason = `鴻海股價強勢噴發創下新高。日K沿 5日線上攻，週K、月K呈強烈仰角多頭排列。受惠於 GB200 訂單市佔率超乎預期，以及蘋果概念股資金強力追捧。由於短線漲幅偏快，不建議此時追價，建議持股者波段續抱，空手者靜待拉回。`;
-      strategy = {
-        observe_range: "255 ~ 265",
-        entry_method: "等待量縮回測 10日線約 252 元附近再建倉",
-        exit_method: "突破 280 元大關前或高檔量能失控時停利 1/3",
-        stop_loss: "跌破月線 245 元"
-      };
-      core_risk = "高檔追價力道減弱，以及市場對 AI 伺服器獲利貢獻的預期過高，需防範利多實現後的震盪。";
-    } else {
-      timing_status = { status: "可分批布局", tags: ["穩健布局", "GB200龍頭", "WWDC概念"] };
-      analyst_action = "強力買進 (分批佈局)";
-      reason = `鴻海股價目前在高檔維持強勢盤整。日K線呈現箱型打底，週K與月K線多頭趨勢向上。基本面上，AI 伺服器與蘋果 iPhone 雙重主線推升，目前本益比相比其他 AI 個股仍屬合理，建議於 255 元附近分批佈局。`;
-      strategy = {
-        observe_range: "252 ~ 260",
-        entry_method: "在 255 元以下及月線支撐區間分批買進",
-        exit_method: "波段上看 275 元歷史新高位置進行調節",
-        stop_loss: "有效收盤跌破 246 元支撐"
-      };
-      core_risk = "美元匯率波動、美中貿易關稅變數下對代工廠毛利率的潛在擠壓風險。";
-    }
-    global_linkage = "高度受惠於美股蘋果 (Apple) 公司秋季硬體換機潮與 NVIDIA 全球 AI 資料中心 Blackwell 架構首波出貨兩大國際科技主流。";
-  } 
-  else if (code === "2454") {
-    if (isDown) {
-      timing_status = { status: "等待止跌", tags: ["長黑灌破", "EdgeAI", "技術性修正"] };
-      analyst_action = "分批低接 (等待止跌)";
-      reason = `聯發科今日因手機市場短期雜音及大盤回檔影響，日K線收長黑棒摜破月線，短線多頭指標轉弱，需時間整理。然而，週K與月K線的中長線多頭架構並未遭到破壞。公司在 Edge AI 手機晶片（天璣9400）與 PC/車用 SoC 領域長線前景依舊明朗，建議空手者在 4200~4250 元附近分批逢低進場。`;
-      strategy = {
-        observe_range: "4200 ~ 4300",
-        entry_method: "回測 4200 元關卡及尋求日K季線支撐時分批承接",
-        exit_method: "反彈至 4450~4500 元以上整理區間上軌分批調節",
-        stop_loss: "有效收盤跌破 4100 元重要防守位"
-      };
-      core_risk = "高階消費性手機市場復甦力道弱於預期，以及同業高通在 PC/AI 手機晶片上的價格戰與份額爭奪。";
-    } else if (isUp) {
-      timing_status = { status: "等待拉回", tags: ["高估值", "EdgeAI", "過熱不追"] };
-      analyst_action = "分批低接 (等待拉回)";
-      reason = `聯發科股價強勢反彈。日K重返所有均線之上，週K與月K呈現陡峭上揚軌道。天璣系列晶片出貨量預期大增，且與 NVIDIA 合作之車用 SoC 與 ARM 筆電晶片開始發揮綜效。由於短線正乖離偏高，建議拉回再做中長線布局。`;
-      strategy = {
-        observe_range: "4320 ~ 4450",
-        entry_method: "待股價量縮拉回至 10日線附近時小幅建倉",
-        exit_method: "股價攻克 4600 元關卡前適度獲利調節",
-        stop_loss: "跌破月線 4250 元"
-      };
-      core_risk = "與微軟 Windows on ARM 生態系普及率是否符合預期，以及晶圓代工成本上漲對毛利的衝擊。";
-    } else {
-      timing_status = { status: "等待拉回", tags: ["高價整理", "晶片設計", "高配息"] };
-      analyst_action = "分批低接";
-      reason = `聯發科股價於 4280 元附近維持橫盤打底。日K線在月線邊界震盪，週K及月K多頭動能穩健。公司具備 3.9% 以上高配息保護，Edge AI 手機與 AI PC 滲透率加速上升，操作上建議回檔進行防禦性配置。`;
-      strategy = {
-        observe_range: "4250 ~ 4350",
-        entry_method: "於整理箱型下軌（約 4250 元附近）進行分批低接",
-        exit_method: "股價回升至 4480~4500 元阻力區時進行調節",
-        stop_loss: "收盤跌破 4180 元"
-      };
-      core_risk = "全球半導體景氣循環復甦斜率偏緩，以及智慧型手機關鍵零組件調漲對客戶採購晶片預算的排擠效應。";
-    }
-    global_linkage = "緊密連動微軟 Copilot+ PC 的 ARM 架構生態圈發展，及台積電先進製程（3奈米）晶片產能獲配額度。";
-  }
-  else if (code === "3481") {
-    if (isUp) {
-      timing_status = { status: "僅觀察", tags: ["爆量突破", "事件炒作", "高波動"] };
-      analyst_action = "短線輕倉 (小倉操作)";
-      reason = `群創股價因面板廠轉型半導體封裝（扇出型面板級封裝 FOPLP）等題材爆量強勢突圍。日K呈現陡峭紅棒突破。但週K、月K長線格局仍受面板供需循環限制。目前屬情緒與題材炒作，波動極大，嚴禁高檔追價，僅適合極短線輕倉參與。`;
-      strategy = {
-        observe_range: "68 ~ 72",
-        entry_method: "股價量縮拉回至 5 日線且守穩時小倉位快進快出",
-        exit_method: "股價挑戰 75 元以上阻力區全數獲利了結",
-        stop_loss: "有效跌破 65 元重要短波段防守位"
-      };
-    } else {
-      timing_status = { status: "僅觀察", tags: ["面板循環", "題材整理", "高波動"] };
-      analyst_action = "短線輕倉 (小倉操作)";
-      reason = `群創股價目前進入高檔爆量後的整理階段。日K線高檔震盪。雖然有半導體級封裝 FOPLP 的轉型題材，但長線面板本業稼動率與價格回升力道偏弱。不宜中長線重壓，建議列入觀察。`;
-      strategy = {
-        observe_range: "65 ~ 70",
-        entry_method: "回測前一波整理箱型中軸附近且量能萎縮時逢低買進",
-        exit_method: "反彈至 72 元以上逢高了結",
-        stop_loss: "收盤價跌破 62.5 元"
-      };
-    }
-    core_risk = "短線市場情緒散去後資金流出速度快，且面板產業常規品報價面臨中國大廠產能開出的長期殺價競爭。";
-    global_linkage = "連動全球大尺寸面板報價、減資進度，以及中國同業（京東方等）的產能擴張動能。";
-  }
-  else if (code === "3324") {
-    if (isUp) {
-      timing_status = { status: "等待拉回", tags: ["水冷概念", "均線多頭", "高波動"] };
-      analyst_action = "分批低接";
-      reason = `雙鴻股價多頭走勢完好。日K線重返所有均線之上，週K與月K線維持長線上揚軌道。水冷散熱技術（CDU、水冷板）產能逐步開出，GB200 需求明確。由於短線波動劇烈，建議拉回再做布局。`;
-      strategy = {
-        observe_range: "1030 ~ 1100",
-        entry_method: "股價量縮回測千元關卡或月線附近分批接",
-        exit_method: "股價突破 1150 元以上前高附近逢高獲利了結",
-        stop_loss: "有效跌破 980 元"
-      };
-    } else {
-      timing_status = { status: "等待拉回", tags: ["水冷概念", "整理格局", "高波動"] };
-      analyst_action = "分批低接";
-      reason = `雙鴻股價在高檔橫盤整理。日K在月線邊界洗盤。中長線水冷散熱升級趨勢不變，但短線散熱板塊正進行估值修正。建議等整理完畢、量能收斂後再分批介入。`;
-      strategy = {
-        observe_range: "1000 ~ 1080",
-        entry_method: "於 1000 元整數關卡防守點附近分批接",
-        exit_method: "股價反彈挑戰 1120~1150 元前波整理平台逢高調節",
-        stop_loss: "收盤跌破 960 元"
-      };
-    }
-    core_risk = "原料銅、鋁等大宗商品暴漲推升成本，以及同業產能開出後引發的價格競爭。";
-    global_linkage = "高度綁定 NVIDIA GPU 晶片 TDP 能耗演進（從 air cooling 轉為 liquid cooling 的進程）。";
-  }
-  else if (code === "3017") {
-    if (isUp) {
-      timing_status = { status: "等待拉回", tags: ["水冷先鋒", "估值偏高", "高波動"] };
-      analyst_action = "暫不介入 (逢高了結)";
-      reason = `奇鋐作為水冷散熱核心供應商，近期股價再度爆量創高。日K線呈強勢排列。但因本益比已高於 40 倍，市場期待值過高。中長線看好但短線不建議在此位階追高，持股者可逢高調節，空手者觀望。`;
-      strategy = {
-        observe_range: "1220 ~ 1290",
-        entry_method: "待日K回測 10日線約 1200 元且洗盤結束後建倉",
-        exit_method: "股價衝克 1300 元以上大關時分批獲利出場",
-        stop_loss: "跌破月線 1150 元"
-      };
-    } else {
-      timing_status = { status: "等待拉回", tags: ["估值修正", "高價整理", "高波動"] };
-      analyst_action = "暫不介入 (逢高了結)";
-      reason = `奇鋐股價目前呈現高檔震盪盤整。日K線橫盤整理，週K與月K線多頭架構依舊。由於本益比偏高，市場正進行籌碼沉澱，建議暫時不介入，等拉回季線或量縮止跌後再評估。`;
-      strategy = {
-        observe_range: "1180 ~ 1260",
-        entry_method: "回測前一波整理區間下軌（約 1180 元）附近進行防禦性低接",
-        exit_method: "股價反彈至 1270~1290 元附近逢高調節",
-        stop_loss: "跌破 1120 元"
-      };
-    }
-    core_risk = "高本益比 (>40x) 容易面臨市場資金獲利了結的劇烈提款回檔風險。";
-    global_linkage = "直接連動美超微 (Supermicro) 伺服器整機機櫃水冷模組出貨量與組裝滲透率。";
-  }
-  else if (code === "2382") {
-    if (isDown) {
-      timing_status = { status: "等待拉回", tags: ["多頭防守", "伺服器龍頭", "季底結帳"] };
-      analyst_action = "波段續抱 (等待拉回)";
-      reason = `廣達股價今日隨大盤拉回。日K跌破短期均線尋求月線支撐。中長期受惠美系CSP大廠持續擴大資本支出，訂單能見度佳。目前股價處於合理估值區，拉回是良好建倉時機。`;
-      strategy = {
-        observe_range: "360 ~ 385",
-        entry_method: "回測月線或 365 元支撐防守點分批進場",
-        exit_method: "股價重返 400 元整數大關前分批调节",
-        stop_loss: "收盤跌破 350 元"
-      };
-    } else {
-      timing_status = { status: "等待拉回", tags: ["多頭排列", "伺服器龍頭", "GB200受益"] };
-      analyst_action = "波段續抱 (等待拉回)";
-      reason = `廣達股價沿均線呈溫和多頭格局。日K、週K、月K多頭結構良好。公司伺服器組裝產能逐步擴充，且本益比相較散熱更具安全邊際，建議持股波段續抱，逢低分批承接。`;
-      strategy = {
-        observe_range: "370 ~ 390",
-        entry_method: "待量縮回測 10日線約 370 元附近時布局",
-        exit_method: "突破 400 元整數關卡時逢高獲利停利 1/3",
-        stop_loss: "跌破月線 355 元"
-      };
-    }
-    core_risk = "水冷電源等零組件短缺可能壓抑出貨速度，但中長線大廠建資料中心趨勢不變。";
-    global_linkage = "高度連動 Google、Amazon AWS、Meta 等超大型雲端服務商 (CSP) 的年度資料中心建設資本支出。";
-  }
-  else if (["2891", "2881", "2882"].includes(code)) {
-    timing_status = { status: "可分批布局", tags: ["高殖利率", "穩健防禦", "避險配置"] };
-    analyst_action = "分批低接 (價值避險)";
-    reason = `目前加權指數處於高檔震盪整理期，金融股如${code === "2891" ? "中信金" : code === "2881" ? "富邦金" : "國泰金"}受惠於首季亮眼獲利及高額配息政策，日K、週K、月K線皆呈穩定的上升通道，為資金極佳的避險防禦去處。`;
+  const isPennyStock = currentPrice < 50;
+  const decimals = isPennyStock ? 2 : (currentPrice < 200 ? 1 : 0);
+  const formatPrice = (p) => parseFloat(p).toFixed(decimals);
+
+  // 動態點位計算
+  const supportShort = formatPrice(currentPrice * 0.98); // 短線5日均線支撐
+  const supportStrong = formatPrice(currentPrice * 0.95); // 月線強防守支撐
+  const resistShort = formatPrice(currentPrice * 1.03); // 前波高點短線阻力
+  const resistTarget = formatPrice(currentPrice * 1.065); // 波段停利目標
+  const stopLoss = formatPrice(currentPrice * 0.94); // 嚴格停損位 (約 -6%)
+
+  const observeRange = `${supportStrong} ~ ${resistShort}`;
+
+  // 個股基本資訊對照
+  const stockMeta = {
+    "2330": { name: "台積電", sector: "晶圓代工龍頭", driver: "先進製程（3nm/2nm）產能利用率持續吃緊，CoWoS/SoIC 先進封裝擴產加速，受惠美系 AI 巨頭龐大算力晶片訂單。" },
+    "2317": { name: "鴻海", sector: "AI伺服器與電子代工", driver: "NVIDIA GB200/NVL72 伺服器整機機櫃出貨持續放量，伴隨旗艦智慧型手機進入傳統下半年拉貨旺季，雙引擎驅動營收動能。" },
+    "2454": { name: "聯發科", sector: "IC設計龍頭", driver: "天璣系列旗艦手機晶片滲透率攀升，搭配客製化 AI ASIC 伺服器晶片與車用/ARM PC SoC 開花結果，長線成長藍圖清晰。" },
+    "2382": { name: "廣達", sector: "AI伺服器組裝", driver: "受惠美系四大雲端服務商 (CSP) 擴大資本支出，高階 AI 伺服器訂單能見度直達明年，產能陸續到位。" },
+    "3017": { name: "奇鋐", sector: "散熱模組龍頭", driver: "水冷板 (Cold Plate) 與散熱機櫃出貨量倍增，高階伺服器散熱規格升級趨勢明確，產品組合優化毛利表現。" },
+    "3324": { name: "雙鴻", sector: "水冷散熱關鍵廠", driver: "水冷散熱關鍵零組件（CDU 分配器、水冷板）產能逐步開出，直接受惠次世代高 TDP 晶片散熱架構革新。" },
+    "2308": { name: "台達電", sector: "電源與綠能管理", driver: "AI 伺服器高瓦數專用電源與電網基礎設施需求強勁，散熱與車用電子雙軌並進，營運體質穩健。" },
+    "8210": { name: "勤誠", sector: "伺服器機殼龍頭", driver: "高階 AI 伺服器專用機殼與機櫃設計複雜度提升帶動平均售價 (ASP) 上揚，北美 CSP 客戶拉貨動能充沛。" },
+    "2059": { name: "川湖", sector: "伺服器導軌王者", driver: "伺服器高階滑軌市佔率高達七成以上，專利護城河極深，受惠重型伺服器機箱規格升級，獲利結構扎實。" },
+    "3008": { name: "大立光", sector: "光學鏡頭領導廠", driver: "旗艦手機鏡頭規格持續升級（潛望式長焦鏡頭下放與高階玻塑混合鏡頭），旺季稼動率滿載支撐營運。" },
+    "2327": { name: "國巨", sector: "被動元件龍頭", driver: "車用、工控與高階被動元件庫存去化完全，利基型產品比重超過七成，兼具高殖利率與估值防禦優勢。" },
+    "2383": { name: "台光電", sector: "銅箔基板 (CCL) 先鋒", driver: "高階無鹵與低損耗 CCL 在 AI 伺服器及交換機板市佔居冠，材料升級週期確立其長期領先地位。" },
+    "2408": { name: "南亞科", sector: "DRAM 記憶體製造", driver: "受惠 AI 伺服器排擠效應帶動常規 DDR5/DDR4 報價健康回升，記憶體產業逐步邁入結構性景氣復甦循環。" },
+    "2891": { name: "中信金", sector: "大型金控股", driver: "銀行利差獲利穩健增長，財富管理手續費收入亮眼，提供 4%~5% 穩定高殖利率，為資金極佳之防守避風港。" },
+    "2881": { name: "富邦金", sector: "金融金控獲利王", driver: "壽險投資部位未實現收益回升，銀行與產險雙引擎獲利強勁，長線每股獲利 (EPS) 與配息能力名列前茅。" },
+    "2882": { name: "國泰金", sector: "指標壽險金控", driver: "受惠資本市場回溫與資產配置優化，獲利動能顯著回升，兼具金融防禦性與除權息收益題材。" },
+    "1301": { name: "台塑", sector: "石化傳產龍頭", driver: "面臨全球石化產能供過於求與常規品競爭，正積極朝半導體特用化學品與高值化材料轉型，靜待景氣築底。" },
+    "2002": { name: "中鋼", sector: "鋼鐵龍頭", driver: "受全球高利率與房地產建築動能偏緩影響，鋼價處於底部震盪，正持續拉高車用與綠能高品級鋼材比重以優化體質。" },
+    "3481": { name: "群創", sector: "面板與先進封裝", driver: "面板本業稼動率受供需動態調整，積極跨足扇出型面板級封裝 (FOPLP) 轉型題材，具備短線題材爆發力與高波動特質。" }
+  };
+
+  const meta = stockMeta[code] || { name: `個股 (${code})`, sector: "台股焦點股", driver: "基本面受惠整體電子產業景氣回溫，長線營運架構維持穩健。" };
+
+  let timing_status;
+  let analyst_action;
+  let strategy;
+  let core_risk;
+  let global_linkage = "高度連動美股費城半導體指數、納斯達克科技板塊，以及美系大型雲端科技巨頭之資本支出預算走向。";
+  let reason;
+
+  // 1. 大漲噴發 (>= 2.5%)
+  if (changePercent >= 2.5) {
+    timing_status = { status: "等待拉回", tags: ["短線大漲", "多頭強攻", "過熱不追"] };
+    analyst_action = "波段續抱 (不追高待拉回)";
     strategy = {
-      observe_range: `${(currentPrice * 0.97).toFixed(1)} ~ ${(currentPrice * 1.03).toFixed(1)}`,
-      entry_method: "逢股價回測日K 10日線或月線時分批存股買進",
-      exit_method: "波段獲利達 10~15% 以上或挑戰前高阻力時適度減碼",
-      stop_loss: `收盤價有效跌破近一季整理區間下軌`
+      observe_range: observeRange,
+      entry_method: `今日股價大漲，正乖離擴大，切忌盲目追高。空手者建議靜待量縮拉回至 ${supportShort} 元支撐附近再分批布局。`,
+      exit_method: `持股者可波段續抱；若股價進一步衝高至 ${resistTarget} 元或爆量長黑時，可分批調節 1/3 獲利入袋。`,
+      stop_loss: `短線跌破今日紅K起漲低點或收盤跌破 ${supportStrong} 元強防守位。`
     };
-    core_risk = "台美降息預期延遲導致債券未實現損益波動，以及新台幣匯率劇烈升值時壽險子公司的匯率避險成本增加。";
-    global_linkage = "密切連動美國十年期國債殖利率波動、聯準會 (Fed) 利率決策以及新台幣兌美元匯率走勢。";
+    core_risk = "短線漲幅偏快導致短線獲利了結賣壓沉重，需防範高檔爆量震盪或融資快速浮額增加。";
+    reason = `${dateStr}，${meta.name} (${code}) 今日股價強勁噴發，單日大漲 +${changePercent.toFixed(2)}% 來到 ${currentPrice} 元！日K線拉出實體紅棒一舉站穩各期均線之上，技術指標呈強勢多頭排列。基本面上，${meta.driver} 由於短線乖離偏大，操盤上切忌於盤中急拉時追價，建議已持股者波段續抱，欲加碼或空手者靜待拉回量縮後再行分批低接。`;
   }
-  else if (["1301", "2002"].includes(code)) {
-    timing_status = { status: "僅觀察", tags: ["傳產景氣", "庫存調整", "低動能"] };
-    analyst_action = "避開觀望 (僅觀察)";
-    reason = `傳產鋼鐵石化股如${code === "1301" ? "台塑" : "中鋼"}因全球製造業復甦動能偏緩，且面臨中國低價鋼材與石化常規品傾銷競爭，日K、週K、月K線處於底部橫盤整理，短期缺乏上攻動能。建議暫不介入，僅作景氣觀察。`;
+  // 2. 溫和多頭 (0.8% ~ 2.5%)
+  else if (changePercent >= 0.8) {
+    timing_status = { status: "可分批布局", tags: ["紅K推進", "多頭排列", "穩步走揚"] };
+    analyst_action = "分批進場 (偏多操作)";
     strategy = {
-      observe_range: `${(currentPrice * 0.95).toFixed(1)} ~ ${(currentPrice * 1.05).toFixed(1)}`,
-      entry_method: "目前不建議建立新部位，待報價明顯落底反彈後再評估",
-      exit_method: "若持有套牢者，建議逢反彈至季線/半年線附近時適度減碼換股",
-      stop_loss: `跌破前波歷史低點平台`
+      observe_range: observeRange,
+      entry_method: `逢股價回測日K 5日線或 ${supportShort} 元附近時，可採定時定量或分批買進方式建倉。`,
+      exit_method: `股價反彈挑戰波段前高壓力位 ${resistShort} 元或 ${resistTarget} 元時分批停利調節。`,
+      stop_loss: `收盤價有效跌破 ${supportStrong} 元重要支撐平台。`
     };
-    core_risk = "中國大陸鋼材及通用塑膠產能持續過剩且低價外溢傾銷，導致毛利率反彈受壓。";
-    global_linkage = "高度受制於中國房地產景氣、全球碳關稅進程，以及國際原油、鐵礦砂大宗商品價格波動。";
+    core_risk = "大盤高檔震盪引發的資金類股輪動，以及外資在現貨市場的短線獲利調節賣盤。";
+    reason = `${dateStr}，${meta.name} (${code}) 呈現穩健上揚走勢，今日漲幅 +${changePercent.toFixed(2)}% 收在 ${currentPrice} 元。日K線維持溫和上升通道，週K與月K線多頭架構完好。產業面方面，${meta.driver} 目前股價位階健康，適合中長線投資人於 ${supportShort} 元支撐上方分批建立基本持股。`;
+  }
+  // 3. 窄幅橫盤整理 (-0.8% ~ 0.8%)
+  else if (changePercent > -0.8) {
+    timing_status = { status: "區間操作", tags: ["橫盤打底", "籌碼沉澱", "箱型整理"] };
+    analyst_action = "區間操作 (低買高賣)";
+    strategy = {
+      observe_range: observeRange,
+      entry_method: `在整理箱型下軌約 ${supportStrong} 元整數關卡附近，逢低分批承接。`,
+      exit_method: `股價回升至箱型上軌約 ${resistShort} 元壓力區時，適度逢高獲利調節。`,
+      stop_loss: `收盤價跌破近 10 日整理低點 ${stopLoss} 元。`
+    };
+    core_risk = "盤整期過長導致市場追價意願不足，若大盤走弱需防範停損賣壓測試支撐。";
+    reason = `${dateStr}，${meta.name} (${code}) 今日股價在 ${currentPrice} 元附近呈現窄幅橫盤整理（今日漲跌 ${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%）。日K線在短中期均線糾結處持續洗盤換手，籌碼正處於沉澱階段。基本面 ${meta.driver} 建議投資人在 ${observeRange} 元之觀察區間內採取區間操作策略，待帶量突破箱型再行加碼。`;
+  }
+  // 4. 回檔修正 (-2.5% ~ -0.8%)
+  else if (changePercent > -2.5) {
+    timing_status = { status: "等待止跌", tags: ["回檔修正", "良性洗盤", "中長線買點"] };
+    analyst_action = "分批低接 (等待止跌)";
+    strategy = {
+      observe_range: observeRange,
+      entry_method: `待股價回測 ${supportStrong} 元月線/季線支撐且出現量縮十字星或紅K止跌訊號時再分批低接。`,
+      exit_method: `反彈至短期壓力位 ${resistShort} 元附近分批調節停利。`,
+      stop_loss: `收盤價有效跌破 ${stopLoss} 元防守低點。`
+    };
+    core_risk = "短線指標仍在修正，若國際科技股持續拉回可能延長整理時間。";
+    reason = `${dateStr}，${meta.name} (${code}) 今日受盤勢震盪影響回檔修正，單日跌幅 ${changePercent.toFixed(2)}% 收在 ${currentPrice} 元。日K線回測短期支撐進行良性洗盤，但週K線與月K線中長線多頭架構依然健全。受惠於 ${meta.driver} 此波回檔提供了較佳的安全邊際，建議分批在 ${supportStrong} 元附近逢低布局。`;
+  }
+  // 5. 重挫下殺 (< -2.5%)
+  else {
+    timing_status = { status: "觀望防守", tags: ["長黑重挫", "避開接刀", "嚴守紀律"] };
+    analyst_action = "暫不介入 (嚴守紀律)";
+    strategy = {
+      observe_range: observeRange,
+      entry_method: `短線空方力道強勁，空手者切忌急於搶反彈，建議等待連續兩日不破低且融資沉澱後再評估。`,
+      exit_method: `持股套牢者若反彈至 ${supportShort} 元均線反壓無法克服，應考慮適度減碼防禦。`,
+      stop_loss: `嚴格執行停損：收盤跌破 ${stopLoss} 元立即退場觀望。`
+    };
+    core_risk = "法人連續提款調節，高檔籌碼鬆動與融資多殺多之連鎖回檔風險。";
+    reason = `${dateStr}，${meta.name} (${code}) 今日遭遇沈重賣壓，單日重挫 ${changePercent.toFixed(2)}% 下跌至 ${currentPrice} 元。日K線收出長黑棒灌破短期均線防守，短期技術面轉弱。雖然中長線 ${meta.driver} 但短線切忌急於進場接刀，務必嚴守 ${stopLoss} 元之停損紀律，待籌碼沉澱止跌後再行進場。`;
+  }
+
+  // 針對傳產與金融股補充專屬風險與國際連動
+  if (["2891", "2881", "2882"].includes(code)) {
+    global_linkage = "密切連動美聯準會 (Fed) 利率政策路徑、美債殖利率波動，以及新台幣兌美元之匯率走勢。";
+  } else if (["1301", "2002"].includes(code)) {
+    global_linkage = "高度連動國際原油期貨、鐵礦砂大宗原物料報價，以及全球製造業景氣循環與碳費政策。";
   }
 
   return {
