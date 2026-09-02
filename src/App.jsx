@@ -8,21 +8,26 @@ import MarketTrends from './components/MarketTrends';
 import { stockData } from './data/stocks';
 import TopChipsRadar from './components/TopChipsRadar';
 import AiChatPanel from './components/AiChatPanel';
+import { generateStockAnalysis } from './utils/analysisGenerator';
 
 export default function App() {
   // 狀態管理
   const [stocks, setStocks] = useState(() => {
-    // 預設將資料庫中的日期初始化為「今天」的日期，實現每日更新的效果
+    // 預設將資料庫中的日期初始化為「今天」的日期，並以動態分析引擎生成當日報告
     const todayStr = new Date().toISOString().split('T')[0];
-    return stockData.map(stock => ({
-      ...stock,
-      timestamps: {
-        ...stock.timestamps,
-        price_date: todayStr,
-        inst_date: todayStr,
-        broker_date: todayStr
-      }
-    }));
+    return stockData.map(stock => {
+      const dynamicAnalysis = generateStockAnalysis(stock.stock_id, stock.current_price, stock.change_percent);
+      return {
+        ...stock,
+        ...dynamicAnalysis,
+        timestamps: {
+          ...stock.timestamps,
+          price_date: todayStr,
+          inst_date: todayStr,
+          broker_date: todayStr
+        }
+      };
+    });
   });
   const [search, setSearch] = useState('');
   const [styleFilter, setStyleFilter] = useState('ALL');
@@ -179,8 +184,11 @@ export default function App() {
         const newChange = parseFloat((newPrice - yesterdayPrice).toFixed(2));
         const newChangePercent = parseFloat(((newChange / yesterdayPrice) * 100).toFixed(2));
         
+        const dynamicAnalysis = generateStockAnalysis(stock.stock_id, newPrice, newChangePercent);
+        
         return {
           ...stock,
+          ...dynamicAnalysis,
           current_price: newPrice,
           change: newChange,
           change_percent: newChangePercent,

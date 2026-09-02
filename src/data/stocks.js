@@ -76,10 +76,10 @@ export const stockData = [
       exit_method: "波段目標 350~360 元分批調節",
       stop_loss: "收盤跌破 290 元且連續三日未收復"
     },
-    reason: "同時具備 AI 伺服器龍頭（GB200 關鍵組裝商）與蘋果 WWDC 概念股雙重利多。相較於其他 AI 概念股，目前本益比仍屬合理，5 月營收預期創同期新高，內外資籌碼持續流入，具備補漲與防禦雙重優勢。",
+    reason: "同時具備 AI 伺服器龍頭（GB200 關鍵組裝商）與旗艦智慧型手機換機潮雙重利多。相較於其他 AI 概念股，目前本益比仍屬合理，營收維持穩健增長，內外資籌碼持續流入，具備成長與防禦雙重優勢。",
     analyst_action: "強力買進 (分批佈局)",
     core_risk: "主要在於美中貿易關稅變數下全球代工廠的去中心化轉移成本，以及高階 AI 晶片缺貨對組裝時程的影響。",
-    global_linkage: "受惠於 6 月蘋果 WWDC (Apple Intelligence 軟硬整合) 與 NVIDIA GB200 伺服器全球首波出貨兩大國際科技主線。"
+    global_linkage: "高度受惠於美股蘋果 (Apple) 旗艦手機換機潮與 NVIDIA 全球 AI 資料中心 Blackwell 架構機櫃出貨兩大國際科技主流。"
   },
   {
     stock_id: "2454",
@@ -156,7 +156,7 @@ export const stockData = [
       exit_method: "挑戰 500 元大關前分批了結",
       stop_loss: "跌破 420 元整理平台支撐"
     },
-    reason: "AI 伺服器整機出貨動能維持高檔，受惠美系大型雲端服務商 (CSP) 持續擴大資本支出。公司訂單能見度已達 2026 年底。近期受 COMPUTEX 電腦展帶動股價再度噴發，操作上宜等量縮回測均線後再行切入。",
+    reason: "AI 伺服器整機出貨動能維持高檔，受惠美系大型雲端服務商 (CSP) 持續擴大資本支出。公司訂單能見度已達 2026 年底。整體營運動能強勁，操作上宜等量縮回測均線後再行切入。",
     analyst_action: "波段續抱 (等待拉回)",
     core_risk: "伺服器關鍵零組件（如 ASIC、水冷接頭）的全球供應鏈短缺風險，可能壓抑出貨速度並使毛利承壓。",
     global_linkage: "直接連動 Google、Amazon AWS、Meta 等美系超大型雲端服務商 (CSP) 之資本支出預算及資料中心建置時程。"
@@ -388,7 +388,7 @@ export const stockData = [
     },
     timing_status: {
       status: "可分批布局",
-      tags: ["可分批布局", "低估值", "WWDC概念"]
+      tags: ["可分批布局", "低估值", "光學鏡頭"]
     },
     strategy: {
       observe_range: "3020 ~ 3100",
@@ -396,7 +396,7 @@ export const stockData = [
       exit_method: "攻克 3500 元前高附近分批獲利了結",
       stop_loss: "跌破專案底線 2850 元"
     },
-    reason: "隨著 6 月蘋果 WWDC 召開，市場對導入 Apple Intelligence 的 iPhone 18 換機潮預期升溫。大立光作為潛望鏡式鏡頭及高階 G+P 鏡頭主供商，最能受惠規格升級。目前估值相對偏低，底部打底完成，具備高安全邊際。",
+    reason: "市場對導入端側 AI 的旗艦智慧型手機換機潮預期升溫。大立光作為潛望鏡式鏡頭及高階 G+P 鏡頭主供商，最能受惠規格升級。目前估值相對偏低，底部打底完成，具備高安全邊際。",
     analyst_action: "強力買進",
     core_risk: "全球智慧手機飽和、總出貨量增長有限，以及主要對手玉晶光、舜宇光學在潛望式鏡頭上的專利繞道與低價搶單。",
     global_linkage: "深度連動蘋果 (Apple) 公司秋季 iPhone 新機出貨展望，以及歐美日三大消費性電子市場的實質零售買氣強度。"
